@@ -128,6 +128,17 @@ details.notes-ref[open] summary::after{content:"–"}
 .note-box.pro{background:var(--surface);border:1px solid var(--line)}
 .note-box ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
 .source{font-size:13px;color:var(--muted)}
+.ch-band{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:20px 22px;border:2px solid #3b2a22;border-radius:18px;background:#2f6b4f;color:#fff8ea;box-shadow:4px 4px 0 #3b2a22;text-align:left;width:100%}
+.ch-band:hover{transform:translateY(-2px)}
+.ch-band .ch-ic{width:64px;height:64px;border-radius:50%;background:#f6c82d;color:#3b2a22;display:grid;place-items:center;border:2px solid #3b2a22}
+.ch-band b{font-family:var(--display,inherit);font-size:22px;display:block}
+.ch-band small{font-size:14px;opacity:.9;display:block;margin-top:4px}
+.ch-band .ch-groups{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ch-band .ch-groups span{background:rgba(255,255,255,.16);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:600}
+.chip.vid{background:#e5533d;color:#fff}
+.ch-link{display:inline-flex;align-items:center;gap:10px;padding:14px 20px;border:2px solid #3b2a22;border-radius:14px;background:#2f6b4f;color:#fff8ea;font-weight:700;font-size:16px;text-decoration:none;box-shadow:3px 3px 0 #3b2a22;align-self:flex-start}
+.ch-link:hover{transform:translateY(-1px)}
+.ch-note{font-size:14px;color:var(--muted);max-width:60ch}
 .status{font-size:14px;color:var(--muted)}
 @media (max-width:760px){
   .hero,.body{grid-template-columns:1fr}
@@ -199,6 +210,7 @@ details.notes-ref[open] summary::after{content:"–"}
 <script>
 const ICONS = {
   all:'<path d="M4 6h16M4 12h16M4 18h10"/>',
+  charle:'<path d="M7 13v7h10v-7"/><path d="M7 13a4 4 0 0 1-1-7.5A4 4 0 0 1 12 3a4 4 0 0 1 6 2.5A4 4 0 0 1 17 13Z"/><path d="M7 17h10"/>',
   mom:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2Z"/><path d="M4 19V5"/><path d="M12 13s-3-1.8-3-3.6A1.6 1.6 0 0 1 12 8.6a1.6 1.6 0 0 1 3 .8c0 1.8-3 3.6-3 3.6Z"/>',
   meat:'<path d="M15.5 4.5a5 5 0 0 1 4 6.5c-.9 2.6-4 4-6.5 3l-3.6 3.6a2 2 0 1 1-2.8 2.4 2 2 0 1 1 2.4-2.8L12.6 13.6c-1-2.5.4-5.6 3-6.5"/>',
   fish:'<path d="M3 12c3-5 9-6 13-3l5-3v12l-5-3c-4 3-10 2-13-3Z"/><circle cx="8" cy="11" r=".8" fill="currentColor"/>',
@@ -221,7 +233,11 @@ document.querySelector('.logo .mini svg').setAttribute('viewBox','46 2 160 196')
 const LINES = ['Feed Me!'];
 const CAT_ORDER = Object.fromEntries(CATS.map((c,i)=>[c[0],i]));
 const MOM_SRC = "Mom's cookbook";
-const catName = id => id==='mom' ? "Mom's book" : (CATS.find(c=>c[0]===id)||[,'Other'])[1];
+const CH_SRC = 'Charlé Visser';
+const CH_GROUPS = [['charle','All of Charlé'],['charle-sa','South African'],['charle-baking','Baking'],['charle-meat','Meat']];
+TINT.charle='#a9d8be'; TINT['charle-sa']='#f6c82d'; TINT['charle-baking']='#f6c6d6'; TINT['charle-meat']='#fbc9b3';
+const chName = id => (CH_GROUPS.find(g=>g[0]===id)||[,"Charlé's kitchen"])[1];
+const catName = id => id.startsWith('charle') ? (id==='charle'?"Charlé's kitchen":"Charlé · "+chName(id)) : id==='mom' ? "Mom's book" : (CATS.find(c=>c[0]===id)||[,'Other'])[1];
 const inCat = (r,c) => c==='all' || (c==='mom' ? r.source===MOM_SRC : r.category===c);
 const icon = (id,size) => `<svg viewBox="0 0 24 24" ${size?`width="${size}" height="${size}"`:''} fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICONS[id]||ICONS.all}</svg>`;
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -229,7 +245,7 @@ const photoUrl = id => '/_blob/'+id;
 const artUrl = svg => 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 const mins = m => !m ? 'Make ahead' : m>=60 ? `${Math.floor(m/60)} h${m%60?' '+m%60+' min':''}` : `${m} min`;
 
-let recipes = [], loaded = false, cat = 'all', query = '', current = null, servings = null, photoIdx = 0;
+let recipes = [], charle = [], loaded = false, cat = 'all', query = '', current = null, servings = null, photoIdx = 0;
 let assets = null, canUpload = false, db = null, servingsFor = null;
 const view = document.getElementById('view');
 
@@ -261,15 +277,16 @@ function cardImg(r){
   return icon(r.category);
 }
 
+function setDocs(all){ recipes = all.filter(r=>r.source!==CH_SRC); charle = all.filter(r=>r.source===CH_SRC).sort((a,b)=>(a.order??999)-(b.order??999)); }
 function counts(){ const c = {}; recipes.forEach(r=>{c[r.category]=(c[r.category]||0)+1; if(r.source===MOM_SRC) c.mom=(c.mom||0)+1;}); return c; }
 const LISTS = () => [['all','Everything'],['mom',"Mom's book"]].concat(CATS);
 function cardsHTML(list){
   return `<div class="grid">${list.map(r=>`
     <button class="card" data-id="${esc(r.id)}">
       <div class="ph">${cardImg(r)}${r.badge?`<span class="chip">${esc(r.badge)}</span>`:''}</div>
-      <div class="label">${esc(catName(r.category))}</div>
+      <div class="label">${esc(r.source===CH_SRC?catName('charle-'+r.group):catName(r.category))}</div>
       <h3>${esc(r.title)}</h3>
-      <div class="meta"><span>${mins(r.totalMin)}</span><span>${esc(r.servesLabel||'')}</span>${r.veg?'<span class="chip veg">Veg</span>':''}</div>
+      <div class="meta">${r.source===CH_SRC?`<span>Recipe on his site</span>${r.video?'<span class="chip vid">Video</span>':''}`:`<span>${mins(r.totalMin)}</span><span>${esc(r.servesLabel||'')}</span>${r.veg?'<span class="chip veg">Veg</span>':''}`}</div>
     </button>`).join('')}</div>`;
 }
 function renderHome(){
@@ -283,15 +300,19 @@ function renderHome(){
   view.innerHTML = `<section style="display:flex;flex-direction:column;gap:28px">
     ${hero()}
     <div style="display:flex;flex-direction:column;gap:16px"><div class="list-head"><h2>Pick a category</h2></div>${body}</div>
+    ${charle.length?`<div style="display:flex;flex-direction:column;gap:16px"><div class="list-head"><h2>Guest chef</h2></div>
+      <button class="ch-band" data-cat="charle"><span class="ch-ic">${icon('charle',34)}</span><span><b>Charlé's kitchen</b><small>${charle.length} recipes from Charlé Visser of Pants Down Aprons On. Each card opens his full recipe.</small>
+      <span class="ch-groups">${CH_GROUPS.slice(1).map(([g,n])=>`<span>${n} · ${charle.filter(r=>'charle-'+r.group===g).length}</span>`).join('')}</span></span></button></div>`:''}
     ${reference()}
   </section>`;
 }
 function renderList(id){
+  if(id.startsWith('charle')) return renderCharleList(id);
   const isSearch = id==='search';
   const q = query.trim().toLowerCase();
-  const list = sorted(recipes.filter(r=> isSearch
-    ? [r.title, r.summary, ...(r.ingredients||[]).map(i=>i.item||'')].join(' ').toLowerCase().includes(q)
-    : inCat(r,id)));
+  const list = isSearch
+    ? sorted(recipes.filter(r=>[r.title, r.summary, ...(r.ingredients||[]).map(i=>i.item||'')].join(' ').toLowerCase().includes(q))).concat(charle.filter(r=>[r.title,r.summary].join(' ').toLowerCase().includes(q)))
+    : sorted(recipes.filter(r=>inCat(r,id)));
   const c = counts();
   const title = isSearch ? `Results for “${esc(query.trim())}”` : (id==='all'?'Everything':catName(id));
   const strip = LISTS().filter(([k])=>k==='all'||c[k]).map(([k,name])=>`<button data-cat="${k}" aria-current="${k===id}" style="--t:${TINT[k]}">${name}</button>`).join('');
@@ -303,6 +324,37 @@ function renderList(id){
     ${isSearch?'':`<nav class="strip" aria-label="Other categories">${strip}</nav>`}
     ${!loaded?`<p class="status">Opening the recipe box…</p>`:list.length?cardsHTML(list):`<div class="empty"><h3>Nothing matches yet</h3><p>${isSearch?'Try an ingredient, like “banana” or “puff pastry”.':'No recipes here yet.'}</p></div>`}
   </section>`;
+}
+
+function renderCharleList(id){
+  const list = id==='charle' ? charle : charle.filter(r=>'charle-'+r.group===id);
+  const strip = CH_GROUPS.map(([k,name])=>`<button data-cat="${k}" aria-current="${k===id}" style="--t:${TINT[k]}">${name}</button>`).join('');
+  view.innerHTML = `<section style="display:flex;flex-direction:column;gap:22px">
+    <div class="list-hero" style="--t:${TINT[id]}">
+      <button class="back" id="back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Home</button>
+      <div class="lh-row">${icon('charle')}<div><h2>${id==='charle'?"Charlé's kitchen":chName(id)}</h2><span>${list.length} recipes from Charlé Visser · Pants Down Aprons On</span></div></div>
+    </div>
+    <nav class="strip" aria-label="Charlé's groups">${strip}</nav>
+    <p class="ch-note">These are Charlé's own recipes. Each card opens a short note here with a link to his full recipe, ingredients and method.</p>
+    ${list.length?cardsHTML(list):`<div class="empty"><h3>Nothing here yet</h3></div>`}
+  </section>`;
+}
+
+function renderCharleRecipe(r){
+  view.innerHTML = `<article style="display:flex;flex-direction:column;gap:36px">
+    <button class="back" id="back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>${lastList?'Back to '+esc(catName(lastList.slice(4))):"Back to Charlé's kitchen"}</button>
+    <div class="hero">
+      <div><div class="ph"><img src="${artUrl(r.artSvg)}" alt="${esc(r.title)} illustration"></div></div>
+      <div class="intro">
+        <div class="label">${esc(catName('charle-'+r.group))}</div>
+        <h2>${esc(r.title)}</h2>
+        <p class="summary">${esc(r.summary||'')}</p>
+        ${r.video?'<div class="chips"><span class="chip vid">Has a video</span></div>':''}
+        <a class="ch-link" href="${esc(r.link)}" target="_blank" rel="noopener">Open the full recipe on Pants Down Aprons On <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+        <div class="source">Recipe by Charlé Visser. Ingredients, method and video are on his site.</div>
+      </div>
+    </div>
+  </article>`;
 }
 
 function todaysPick(){
@@ -345,6 +397,7 @@ function reference(){
 }
 
 function renderRecipe(r){
+  if(r.source===CH_SRC) return renderCharleRecipe(r);
   const base = Number(r.serves)||null, f = base&&servings ? servings/base : 1;
   const photos = r.photos||[];
   const heroImg = photos.length ? `<img src="${photoUrl(photos[photoIdx]||photos[0])}" alt="${esc(r.title)}">` : r.artSvg ? `<img src="${artUrl(r.artSvg)}" alt="${esc(r.title)} illustration">` : icon(r.category,64);
@@ -396,7 +449,7 @@ function render(){
   if(query.trim()){ current=null; renderList('search'); return; }
   if(h.startsWith('cat-')){ current=null; lastList=h; renderList(h.slice(4)); return; }
   current = h || null;
-  const r = current && recipes.find(x=>x.id===current);
+  const r = current && (recipes.find(x=>x.id===current) || charle.find(x=>x.id===current));
   if(r){ if(servingsFor!==r.id){ servings = Number(r.serves)||null; servingsFor = r.id; photoIdx = 0; } renderRecipe(r); }
   else { servingsFor = null; servings = null; photoIdx = 0; lastList=''; renderHome(); }
 }
@@ -405,7 +458,8 @@ view.addEventListener('click', e=>{
   const c = e.target.closest('[data-cat]'); if(c){ query=''; document.getElementById('q').value=''; location.hash = 'cat-'+c.dataset.cat; window.scrollTo(0,0); return; }
   const card = e.target.closest('.card,.pick'); if(card){ servings=null; photoIdx=0; location.hash = card.dataset.id; window.scrollTo(0,0); return; }
   if(e.target.closest('#back')){
-    if(current && lastList && !query.trim()){ location.hash = lastList; window.scrollTo(0,0); }
+    const cr = current && charle.find(x=>x.id===current);
+    if(current && (lastList || cr) && !query.trim()){ location.hash = lastList || 'cat-charle'; window.scrollTo(0,0); }
     else goHome();
     return; }
   if(e.target.closest('#plus')){ servings++; render(); return; }
@@ -430,8 +484,8 @@ render();
 (async()=>{
   try{
     const res = await fetch('recipes.json', {cache:'no-cache'});
-    recipes = await res.json();
-  }catch(e){ recipes = []; }
+    setDocs(await res.json());
+  }catch(e){ setDocs([]); }
   loaded = true; render();
 })();
 if('serviceWorker' in navigator){ window.addEventListener('load', ()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
