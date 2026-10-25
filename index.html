@@ -286,7 +286,7 @@ function cardsHTML(list){
       <div class="ph">${cardImg(r)}${r.badge?`<span class="chip">${esc(r.badge)}</span>`:''}</div>
       <div class="label">${esc(r.source===CH_SRC?catName('charle-'+r.group):catName(r.category))}</div>
       <h3>${esc(r.title)}</h3>
-      <div class="meta">${r.source===CH_SRC?`<span>Recipe on his site</span>${r.video?'<span class="chip vid">Video</span>':''}`:`<span>${mins(r.totalMin)}</span><span>${esc(r.servesLabel||'')}</span>${r.veg?'<span class="chip veg">Veg</span>':''}`}</div>
+      <div class="meta">${r.source===CH_SRC?`<span>${esc(r.time||'')}</span><span>${esc(r.servesLabel||'')}</span>`:`<span>${mins(r.totalMin)}</span><span>${esc(r.servesLabel||'')}</span>${r.veg?'<span class="chip veg">Veg</span>':''}`}</div>
     </button>`).join('')}</div>`;
 }
 function renderHome(){
@@ -301,7 +301,7 @@ function renderHome(){
     ${hero()}
     <div style="display:flex;flex-direction:column;gap:16px"><div class="list-head"><h2>Pick a category</h2></div>${body}</div>
     ${charle.length?`<div style="display:flex;flex-direction:column;gap:16px"><div class="list-head"><h2>Guest chef</h2></div>
-      <button class="ch-band" data-cat="charle"><span class="ch-ic">${icon('charle',34)}</span><span><b>Charlé's kitchen</b><small>${charle.length} recipes from Charlé Visser of Pants Down Aprons On. Each card opens his full recipe.</small>
+      <button class="ch-band" data-cat="charle"><span class="ch-ic">${icon('charle',34)}</span><span><b>Charlé's kitchen</b><small>${charle.length} recipes from Charlé Visser of Pants Down Aprons On, written up for our book.</small>
       <span class="ch-groups">${CH_GROUPS.slice(1).map(([g,n])=>`<span>${n} · ${charle.filter(r=>'charle-'+r.group===g).length}</span>`).join('')}</span></span></button></div>`:''}
     ${reference()}
   </section>`;
@@ -311,7 +311,7 @@ function renderList(id){
   const isSearch = id==='search';
   const q = query.trim().toLowerCase();
   const list = isSearch
-    ? sorted(recipes.filter(r=>[r.title, r.summary, ...(r.ingredients||[]).map(i=>i.item||'')].join(' ').toLowerCase().includes(q))).concat(charle.filter(r=>[r.title,r.summary].join(' ').toLowerCase().includes(q)))
+    ? sorted(recipes.filter(r=>[r.title, r.summary, ...(r.ingredients||[]).map(i=>i.item||'')].join(' ').toLowerCase().includes(q))).concat(charle.filter(r=>[r.title,r.summary,...(r.ingredients||[]).map(i=>i.item||'')].join(' ').toLowerCase().includes(q)))
     : sorted(recipes.filter(r=>inCat(r,id)));
   const c = counts();
   const title = isSearch ? `Results for “${esc(query.trim())}”` : (id==='all'?'Everything':catName(id));
@@ -335,26 +335,8 @@ function renderCharleList(id){
       <div class="lh-row">${icon('charle')}<div><h2>${id==='charle'?"Charlé's kitchen":chName(id)}</h2><span>${list.length} recipes from Charlé Visser · Pants Down Aprons On</span></div></div>
     </div>
     <nav class="strip" aria-label="Charlé's groups">${strip}</nav>
-    <p class="ch-note">These are Charlé's own recipes. Each card opens a short note here with a link to his full recipe, ingredients and method.</p>
     ${list.length?cardsHTML(list):`<div class="empty"><h3>Nothing here yet</h3></div>`}
   </section>`;
-}
-
-function renderCharleRecipe(r){
-  view.innerHTML = `<article style="display:flex;flex-direction:column;gap:36px">
-    <button class="back" id="back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>${lastList?'Back to '+esc(catName(lastList.slice(4))):"Back to Charlé's kitchen"}</button>
-    <div class="hero">
-      <div><div class="ph"><img src="${artUrl(r.artSvg)}" alt="${esc(r.title)} illustration"></div></div>
-      <div class="intro">
-        <div class="label">${esc(catName('charle-'+r.group))}</div>
-        <h2>${esc(r.title)}</h2>
-        <p class="summary">${esc(r.summary||'')}</p>
-        ${r.video?'<div class="chips"><span class="chip vid">Has a video</span></div>':''}
-        <a class="ch-link" href="${esc(r.link)}" target="_blank" rel="noopener">Open the full recipe on Pants Down Aprons On <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
-        <div class="source">Recipe by Charlé Visser. Ingredients, method and video are on his site.</div>
-      </div>
-    </div>
-  </article>`;
 }
 
 function todaysPick(){
@@ -397,7 +379,6 @@ function reference(){
 }
 
 function renderRecipe(r){
-  if(r.source===CH_SRC) return renderCharleRecipe(r);
   const base = Number(r.serves)||null, f = base&&servings ? servings/base : 1;
   const photos = r.photos||[];
   const heroImg = photos.length ? `<img src="${photoUrl(photos[photoIdx]||photos[0])}" alt="${esc(r.title)}">` : r.artSvg ? `<img src="${artUrl(r.artSvg)}" alt="${esc(r.title)} illustration">` : icon(r.category,64);
@@ -413,7 +394,7 @@ function renderRecipe(r){
         ${photos.length>1?`<div class="thumbs">${photos.map((p,i)=>`<button data-ph="${i}" aria-current="${i===photoIdx}" aria-label="Photo ${i+1}"><img src="${photoUrl(p)}" alt=""></button>`).join('')}</div>`:''}
       </div>
       <div class="intro">
-        <div class="label">${esc(catName(r.category))}</div>
+        <div class="label">${esc(r.source===CH_SRC?catName('charle-'+r.group):catName(r.category))}</div>
         <h2>${esc(r.title)}</h2>
         ${r.summary?`<p class="summary">${esc(r.summary)}</p>`:''}
         ${(r.badge||r.veg)?`<div class="chips">${r.badge?`<span class="chip love">${esc(r.badge)}</span>`:''}${r.veg?'<span class="chip veg">Vegetarian</span>':''}</div>`:''}
@@ -421,7 +402,7 @@ function renderRecipe(r){
           <div><span class="label">Time</span><strong>${esc(r.time||mins(r.totalMin))}</strong></div>
           <div><span class="label">Makes</span><strong>${esc(r.servesLabel||'–')}</strong></div>
         </div>
-        ${r.source?`<div class="source">${esc(r.source===MOM_SRC?"From Mom's Kook en Geniet":r.source==='Made with Claude'?'From the recipes we made with Claude':'From the family cookbook')}</div>`:''}
+        ${r.source?`<div class="source">${esc(r.source===MOM_SRC?"From Mom's Kook en Geniet":r.source==='Made with Claude'?'From the recipes we made with Claude':r.source===CH_SRC?"Charlé Visser's recipe (Pants Down Aprons On), written up for our book":'From the family cookbook')}</div>`:''}
         ${canUpload?`<div class="upload"><label class="btn" for="addphoto">Add a photo</label><input id="addphoto" type="file" accept="image/*" hidden><span id="upmsg"></span></div>`:''}
       </div>
     </div>
