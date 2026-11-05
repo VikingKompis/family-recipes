@@ -43,12 +43,12 @@
   .region{margin:10px 0 26px}
   .region h2{font:700 13px Unbounded,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:0 0 12px;display:flex;align-items:center;gap:10px}
   .region h2 .clock{font:500 12px "Space Grotesk";letter-spacing:0;text-transform:none;color:var(--mute);opacity:.8;margin-left:auto}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-  .st{position:relative;border:1px solid var(--line);background:var(--card);border-radius:20px;padding:14px;cursor:pointer;text-align:left;color:var(--ink);font:inherit;
-     transition:transform .15s ease, border-color .2s, background .2s;overflow:hidden;min-height:132px;display:flex;flex-direction:column;gap:10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .st{position:relative;border:1px solid var(--line);background:var(--card);border-radius:18px;padding:12px;cursor:pointer;text-align:left;color:var(--ink);font:inherit;
+     transition:transform .15s ease, border-color .2s, background .2s;overflow:hidden;min-height:112px;display:flex;flex-direction:column;gap:8px}
   .st:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.25)}
   .st:active{transform:scale(.98)}
-  .badge{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;font:900 15px Unbounded,sans-serif;color:#fff;letter-spacing:-.03em;box-shadow:0 8px 24px -8px var(--c1)}
+  .badge{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font:900 12px Unbounded,sans-serif;color:#fff;letter-spacing:-.03em;box-shadow:0 8px 24px -8px var(--c1)}
   .st .nm{font-weight:700;font-size:15px;line-height:1.2}
   .st .sub{color:var(--mute);font-size:12px;line-height:1.3}
   .st.on{border-color:transparent;background:linear-gradient(160deg,rgba(255,61,139,.22),rgba(255,181,71,.12));box-shadow:0 0 0 2px var(--hot) inset}
@@ -66,7 +66,7 @@
   .deck{pointer-events:auto;max-width:980px;margin:0 auto;border-radius:26px;padding:14px 16px;
      background:rgba(23,18,58,.82);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
      border:1px solid var(--line);box-shadow:0 20px 60px -20px rgba(0,0,0,.8);display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
-  .deck .badge{width:58px;height:58px;border-radius:17px}
+  .deck .badge{width:48px;height:48px;border-radius:14px;font-size:13px}
   .np{min-width:0}
   .np .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:6px}
   .np .k .dot{width:7px;height:7px;border-radius:50%;background:var(--mute)}
@@ -75,6 +75,7 @@
   .np .t{font:700 17px Unbounded,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
   .np .s{font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
   .np .s a{color:var(--sun)}
+  .np .s.song{color:var(--ink)} .np .s .note{color:var(--sun);margin-right:4px}
   .ctl{display:flex;align-items:center;gap:10px}
   .play{width:58px;height:58px;border-radius:50%;border:0;cursor:pointer;background:linear-gradient(135deg,var(--hot),var(--sun));display:grid;place-items:center;box-shadow:0 10px 30px -8px rgba(255,61,139,.8)}
   .play svg{width:24px;height:24px;fill:#1a0b1e}
@@ -95,7 +96,7 @@
   }
   .foot{color:var(--mute);font-size:12px;text-align:center;margin-top:10px;opacity:.7}
   .st.add{border-style:dashed;align-items:center;justify-content:center;text-align:center;color:var(--mute)}
-  .st.add .plus{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;font:700 28px Unbounded;background:rgba(255,255,255,.07);color:var(--sun)}
+  .st.add .plus{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font:700 22px Unbounded;background:rgba(255,255,255,.07);color:var(--sun)}
   .del{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.35);color:var(--mute);font-size:15px;cursor:pointer;display:grid;place-items:center}
   .del:hover{background:var(--hot);color:#fff}
   .st.on .del{display:none}
@@ -186,7 +187,7 @@ const REGIONS = [
 const BUILTIN = [
   { id:"jacaranda", region:"za", name:"Jacaranda FM", sub:"94.2 · Feel-good hits, Gauteng", mono:"JFM", c:["#7b3fe4","#c86bff"],
     urls:["https://live.jacarandafm.com/jacarandahigh.mp3","https://edge.iono.fm/xice/54_medium.aac"] },
-  { id:"kfm", region:"za", name:"KFM 94.5", sub:"Cape Town's hit music", mono:"KFM", c:["#00a3e0","#00d1b2"],
+  { id:"kfm", region:"za", name:"KFM 94.5", sub:"Cape Town's hit music", mono:"KFM", c:["#00a3e0","#00d1b2"], np:{type:"triton",mount:"KFM"},
     urls:["https://playerservices.streamtheworld.com/api/livestream-redirect/KFM.mp3","https://playerservices.streamtheworld.com/api/livestream-redirect/KFM_SC"] },
   { id:"702", region:"za", name:"702", sub:"Talk radio, Johannesburg", mono:"702", c:["#e4002b","#ff6a3d"],
     urls:["https://playerservices.streamtheworld.com/api/livestream-redirect/FM702.mp3","https://playerservices.streamtheworld.com/api/livestream-redirect/FM702_SC"] },
@@ -199,18 +200,18 @@ const BUILTIN = [
     urls:["https://as-hls-ww-live.akamaized.net/pool_23461179/live/ww/bbc_radio_three/bbc_radio_three.isml/bbc_radio_three-audio%3d96000.norewind.m3u8"] },
   { id:"berks", region:"uk", name:"BBC Radio Berkshire", sub:"Local BBC for Berkshire", mono:"BRK", c:["#0b5aa8","#3c8ce7"], hls:true,
     urls:["https://as-hls-ww-live.akamaized.net/pool_64162474/live/ww/bbc_radio_berkshire/bbc_radio_berkshire.isml/bbc_radio_berkshire-audio%3d96000.norewind.m3u8"] },
-  { id:"classic", region:"uk", name:"Classic FM", sub:"The world's greatest music", mono:"CFM", c:["#1b2a6b","#4a62c9"],
+  { id:"classic", region:"uk", name:"Classic FM", sub:"The world's greatest music", mono:"CFM", c:["#1b2a6b","#4a62c9"], np:{type:"icy",url:"https://media-ssl.musicradio.com/ClassicFM"},
     urls:["https://media-ssl.musicradio.com/ClassicFM","https://ice-the.musicradio.com/ClassicFMMP3"] },
   { id:"magic", region:"uk", name:"Magic Radio", sub:"Feel-good classics, 80s to now", mono:"M", c:["#d1006f","#ff4fa3"],
     urls:["https://stream-mz.hellorayo.co.uk/magic1054.aac"] },
 
-  { id:"p1", region:"se", name:"SR P1", sub:"Nyheter, samhälle, kultur", mono:"P1", c:["#0a7a5a","#1fbf8f"],
+  { id:"p1", region:"se", name:"SR P1", sub:"Nyheter, samhälle, kultur", mono:"P1", c:["#0a7a5a","#1fbf8f"], np:{type:"sr",id:132},
     urls:["https://live1.sr.se/p1-aac-320","https://sverigesradio.se/topsy/direkt/srapi/132-hi-aac-http","https://live1.sr.se/p1-mp3-96"] },
-  { id:"p2", region:"se", name:"SR P2", sub:"Klassiskt, jazz, folkmusik", mono:"P2", c:["#6b2fb3","#a066ea"],
+  { id:"p2", region:"se", name:"SR P2", sub:"Klassiskt, jazz, folkmusik", mono:"P2", c:["#6b2fb3","#a066ea"], np:{type:"sr",id:2562},
     urls:["https://live1.sr.se/p2-aac-320","https://sverigesradio.se/topsy/direkt/srapi/2562-hi-aac-http","https://live1.sr.se/p2-mp3-96"] },
-  { id:"p3", region:"se", name:"SR P3", sub:"Musik & humor", mono:"P3", c:["#d9480f","#ff8a3d"],
+  { id:"p3", region:"se", name:"SR P3", sub:"Musik & humor", mono:"P3", c:["#d9480f","#ff8a3d"], np:{type:"sr",id:164},
     urls:["https://live1.sr.se/p3-aac-320","https://sverigesradio.se/topsy/direkt/srapi/164-hi-aac-http","https://live1.sr.se/p3-mp3-96"] },
-  { id:"p4", region:"se", name:"SR P4 Stockholm", sub:"Lokalt för Stockholm", mono:"P4", c:["#1565c0","#42a5f5"],
+  { id:"p4", region:"se", name:"SR P4 Stockholm", sub:"Lokalt för Stockholm", mono:"P4", c:["#1565c0","#42a5f5"], np:{type:"sr",id:701},
     urls:["https://sverigesradio.se/topsy/direkt/srapi/701-hi-aac-http"] },
 
   { id:"breeze", region:"nz", name:"The Breeze", sub:"Ronan Keating · weekdays 2–3pm NZ", mono:"RK", c:["#00897b","#4dd0e1"],
@@ -336,6 +337,7 @@ function tune(id){
   b.textContent = s.mono; b.style.background = `linear-gradient(135deg,${s.c[0]},${s.c[1]})`; b.style.setProperty("--c1",s.c[0]);
   $("#npTitle").textContent = s.name;
   const r = REGIONS.find(x=>x.id===s.region);
+  stopNP(); $("#npSub").className="s";
   $("#npSub").textContent = s.ronan ? ronanStatus().text : `${r.flag} ${s.sub}`;
   $("#playBtn").disabled = false;
   document.querySelectorAll(".st").forEach(el=>el.classList.toggle("on", el.dataset.id===id));
@@ -381,11 +383,11 @@ function togglePlay(){
     // Live radio: always rejoin the live edge
     startUrl();
   } else {
-    wantPlay = false; audio.pause(); teardown(); setState("paused","Paused");
+    wantPlay = false; audio.pause(); teardown(); setState("paused","Paused"); stopNP();
   }
 }
 
-audio.addEventListener("playing", ()=>{ clearTimeout(stallTimer); setState("playing","Live now"); });
+audio.addEventListener("playing", ()=>{ clearTimeout(stallTimer); setState("playing","Live now"); if (!current || npFor!==current.id) startNP(); });
 audio.addEventListener("waiting", ()=>{ if (wantPlay) setState("loading","Buffering…"); });
 audio.addEventListener("error", ()=>{ if (wantPlay && !hls) nextUrl(); });
 
@@ -407,6 +409,67 @@ function step(d){
   const i = current ? STATIONS.findIndex(x=>x.id===current.id) : -1;
   tune(STATIONS[(i + d + STATIONS.length) % STATIONS.length].id);
 }
+
+/* ---------- Now playing (song / show) ---------- */
+let npTimer=null, npFor=null;
+function withTimeout(p,ms){ return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),ms))]); }
+async function npSR(id){
+  const j = await withTimeout(fetch(`https://api.sr.se/api/v2/playlists/rightnow?channelid=${id}&format=json`).then(r=>r.json()),8000).catch(()=>null);
+  const s = j && j.playlist && j.playlist.song;
+  if (s && s.title) return { song:true, text:(s.artist?s.artist+" – ":"")+s.title, artist:s.artist||"", title:s.title };
+  const e = await withTimeout(fetch(`https://api.sr.se/api/v2/scheduledepisodes/rightnow?channelid=${id}&format=json`).then(r=>r.json()),8000).catch(()=>null);
+  const ep = e && e.channel && e.channel.currentscheduledepisode;
+  if (ep && ep.title) return { song:false, text:"On air: "+ep.title, title:ep.title };
+  return null;
+}
+async function npTriton(mount){
+  const x = await withTimeout(fetch(`https://np.tritondigital.com/public/nowplaying?mountName=${mount}&numberToFetch=1&eventType=track`).then(r=>r.text()),8000).catch(()=>null);
+  if (!x) return null;
+  const d = new DOMParser().parseFromString(x,"text/xml");
+  const prop = n => { const el=[...d.querySelectorAll("property")].find(p=>p.getAttribute("name")===n); return el?el.textContent.trim():""; };
+  const title=prop("cue_title"), artist=prop("track_artist_name");
+  return title ? { song:true, text:(artist?artist+" – ":"")+title, artist, title } : null;
+}
+async function npIcy(url){
+  // Reads the stream's built-in song title, then hangs up
+  const ac = new AbortController(); const kill=setTimeout(()=>ac.abort(),10000);
+  try{
+    const r = await fetch(url,{headers:{"Icy-MetaData":"1"},signal:ac.signal,cache:"no-store"});
+    const metaint = parseInt(r.headers.get("icy-metaint")||"0",10); if (!metaint) return null;
+    const reader = r.body.getReader(); let buf=new Uint8Array(0);
+    while (true){
+      const {value,done} = await reader.read(); if (done) break;
+      const nb=new Uint8Array(buf.length+value.length); nb.set(buf); nb.set(value,buf.length); buf=nb;
+      if (buf.length>metaint){ const len=buf[metaint]*16; if (buf.length>=metaint+1+len){
+        const meta=new TextDecoder("utf-8").decode(buf.slice(metaint+1,metaint+1+len));
+        const m=meta.match(/StreamTitle='([^']*)'/); const t=m&&m[1].trim();
+        if (!t) return null;
+        const parts=t.split(" - "); return { song:true, text:t.replace(" - "," – "), artist:parts.length>1?parts[0]:"", title:parts.length>1?parts.slice(1).join(" - "):t };
+      } }
+      if (buf.length>metaint+5000) return null;
+    }
+  }catch(e){ return null }
+  finally{ clearTimeout(kill); try{ ac.abort() }catch(e){} }
+  return null;
+}
+async function refreshNP(){
+  const s=current; if (!s || !s.np || audio.paused) return;
+  let info=null;
+  try{
+    if (s.np.type==="sr") info=await npSR(s.np.id);
+    else if (s.np.type==="triton") info=await npTriton(s.np.mount);
+    else if (s.np.type==="icy") info=await npIcy(s.np.url);
+  }catch(e){}
+  if (current!==s) return;
+  const el=$("#npSub");
+  if (info){
+    el.className="s"+(info.song?" song":""); el.innerHTML=(info.song?'<span class="note">♪</span>':"")+escapeHtml(info.text);
+    try{ navigator.mediaSession.metadata=new MediaMetadata({ title: info.song?info.title:s.name, artist: info.song?(info.artist||s.name):info.text, album:s.name }); }catch(e){}
+  }
+}
+function escapeHtml(t){ return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function startNP(){ stopNP(); if (!current||!current.np) return; npFor=current.id; refreshNP(); npTimer=setInterval(refreshNP,25000); }
+function stopNP(){ clearInterval(npTimer); npTimer=null; npFor=null; }
 
 /* ---------- Add / remove stations ---------- */
 const testAudio = new Audio(); let testHls=null;
