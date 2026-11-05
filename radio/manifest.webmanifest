@@ -1,7 +1,7 @@
 {
   "name": "Erik FM",
   "short_name": "Erik FM",
-  "description": "Live radio from South Africa, the UK, Sweden and New Zealand.",
+  "description": "Live radio and TV news from South Africa, the UK, Sweden, New Zealand and beyond.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

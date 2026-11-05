@@ -108,14 +108,50 @@
   .sheet label{display:block;font-size:12px;color:var(--mute);margin:12px 0 5px;letter-spacing:.04em}
   .sheet input,.sheet select{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);font:15px "Space Grotesk"}
   .row{display:flex;gap:10px;margin-top:18px;align-items:center}
-  .btn{border:0;border-radius:999px;padding:11px 18px;font:700 14px "Space Grotesk";cursor:pointer}
+  .btn{border:0;border-radius:999px;padding:11px 18px;font:700 14px "Space Grotesk",system-ui,sans-serif;cursor:pointer}
   .btn.pri{background:linear-gradient(90deg,var(--hot),var(--sun));color:#1a0b1e}
   .btn.sec{background:rgba(255,255,255,.08);color:var(--ink)}
   .msg{font-size:13px;min-height:18px;margin-top:12px}
   .msg.ok{color:var(--mint)} .msg.bad{color:#ff7a9c}
+
+  /* ---------- Views: home / radio / tv ---------- */
+  .view{display:none}
+  .view-home #homeView, .view-radio #radioView, .view-tv #tvView{display:block}
+  .view-tv .dock{display:none}
+  .view-home:not(.playing):not(.loading) .dock{display:none}
+  body.view-tv, body.view-home:not(.playing):not(.loading){padding-bottom:calc(30px + env(safe-area-inset-bottom))}
+  .back{display:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:500 14px "Space Grotesk",system-ui,sans-serif;padding:8px 13px;border-radius:999px;cursor:pointer;margin-left:auto;flex:none}
+  .view-radio .back, .view-tv .back{display:inline-block}
+  .home{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+  @media (max-width:560px){ .home{grid-template-columns:1fr} }
+  .big{position:relative;border:1px solid var(--line);border-radius:26px;padding:22px;min-height:190px;cursor:pointer;text-align:left;color:var(--ink);font:inherit;overflow:hidden;display:flex;flex-direction:column;gap:10px;transition:transform .15s}
+  .big:active{transform:scale(.98)}
+  .big.radio{background:linear-gradient(150deg,rgba(255,61,139,.35),rgba(255,181,71,.15))}
+  .big.tv{background:linear-gradient(150deg,rgba(91,140,255,.4),rgba(61,245,196,.15))}
+  .big .ic{font-size:44px;line-height:1}
+  .big .nm{font:900 30px Unbounded,sans-serif;letter-spacing:-.02em}
+  .big .sub{color:var(--ink);opacity:.8;font-size:14px;line-height:1.4}
+  .big .now{margin-top:auto;font-size:12.5px;color:var(--sun)}
+
+  .screen{position:relative;width:100%;aspect-ratio:16/9;border-radius:20px;overflow:hidden;background:#05030f;border:1px solid var(--line)}
+  .screen iframe,.screen video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+  .screen .ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;color:var(--mute);font-size:14px;line-height:1.5}
+  .screen .ph b{display:block;font:700 18px Unbounded,system-ui,sans-serif;color:var(--ink);margin-bottom:6px}
+  .tvbar{display:flex;align-items:center;gap:12px;padding:12px 0 16px}
+  .tvbar .btn{flex:none;padding:9px 14px;font-size:13px}
+  .tvbar .np{flex:1;min-width:0}
+  .tvbar .t,.tvbar .s{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tvbar .t{font:700 17px Unbounded,sans-serif}
+  .tvbar .s{font-size:12.5px;color:var(--mute);margin-top:2px}
+  .tvbar a.btn{text-decoration:none;display:inline-block}
+  .sticky{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-bottom:16px !important;padding-top:8px;margin:0 -18px;padding-left:18px;padding-right:18px}
+  .note{color:var(--mute);font-size:12.5px;margin:-4px 0 12px;line-height:1.45}
+  .pill.yt{background:rgba(255,61,61,.16);color:#ff8080}
+  .pill.svt{background:rgba(61,245,196,.15);color:var(--mint)}
+  .pill.link{background:rgba(255,181,71,.15);color:var(--sun)}
 </style>
 </head>
-<body class="paused">
+<body class="paused view-home">
 <div class="wrap">
   <header>
     <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
@@ -128,13 +164,55 @@
     </svg>
     <div>
       <h1>Erik <span>FM</span></h1>
-      <div class="tag">Jo'burg · Cape Town · London · Stockholm · Auckland — tap a station to tune in</div>
+      <div class="tag" id="tagline">Radio and TV from home, and from everywhere you've lived</div>
     </div>
+    <button class="back" id="backBtn">‹ Home</button>
   </header>
 
-  <nav class="tabs" id="tabs"></nav>
-  <main id="regions"></main>
-  <div class="foot">Space = play/pause · ⇧← ⇧→ = previous/next station · tap ＋ to add your own stations</div>
+  <section class="view" id="homeView">
+    <div class="home">
+      <button class="big radio" data-go="radio">
+        <div class="ic">📻</div><div class="nm">Radio</div>
+        <div class="sub">South Africa, UK, Sweden and New Zealand</div>
+        <div class="now" id="homeNow"></div>
+      </button>
+      <button class="big tv" data-go="tv">
+        <div class="ic">📺</div><div class="nm">TV</div>
+        <div class="sub">Live news, SVT and Nyheter på lätt svenska</div>
+      </button>
+    </div>
+  </section>
+
+  <section class="view" id="radioView">
+    <nav class="tabs" id="tabs"></nav>
+    <main id="regions"></main>
+    <div class="foot">Space = play/pause · ⇧← ⇧→ = previous/next station · tap ＋ to add your own stations</div>
+  </section>
+
+  <section class="view" id="tvView">
+    <div class="sticky">
+      <div class="screen" id="screen"><div class="ph"><div><b>Pick a channel</b>Live news plays right here. Rotate your phone or use the player's full-screen button.</div></div></div>
+      <div class="tvbar">
+        <div class="badge" id="tvBadge" style="background:linear-gradient(135deg,#2a2160,#1d1646)">TV</div>
+        <div class="np"><div class="t" id="tvTitle">Nothing on</div><div class="s" id="tvSub">Tap a channel below</div></div>
+        <a class="btn sec" id="tvOpen" target="_blank" rel="noopener" style="display:none">Open in app ↗</a>
+      </div>
+    </div>
+    <main id="tvGroups"></main>
+    <div class="foot">News channels stream from their official YouTube live feeds. SVT works inside Sweden. Tap ＋ to add any YouTube channel.</div>
+  </section>
+</div>
+
+<div class="modal" id="tvModal">
+  <form class="sheet" id="tvForm" autocomplete="off">
+    <h3>Add a TV channel</h3>
+    <p>Paste a YouTube link: a channel page (youtube.com/channel/UC…), a live video, or a channel handle (@name). Channel and video links play inside the app. Handles open in YouTube.</p>
+    <label>Channel name</label><input id="tName" required placeholder="e.g. Sky News Australia">
+    <label>YouTube link</label><input id="tUrl" required placeholder="https://www.youtube.com/…">
+    <label>Where does it go?</label><select id="tGroup"></select>
+    <div class="msg" id="tMsg"></div>
+    <div class="row"><span style="flex:1"></span><button type="button" class="btn sec" id="tCancel">Cancel</button><button type="submit" class="btn pri">Save</button></div>
+  </form>
 </div>
 
 <div class="dock">
@@ -333,6 +411,7 @@ function tune(id){
   if (current && current.id===id && !audio.paused){ togglePlay(); return; }
   current = s; urlIdx = 0; wantPlay = true;
   store("efm-last", id);
+  if (tvCurrent) resetTV();
   const b = $("#npBadge");
   b.textContent = s.mono; b.style.background = `linear-gradient(135deg,${s.c[0]},${s.c[1]})`; b.style.setProperty("--c1",s.c[0]);
   $("#npTitle").textContent = s.name;
@@ -393,7 +472,7 @@ audio.addEventListener("error", ()=>{ if (wantPlay && !hls) nextUrl(); });
 
 $("#playBtn").onclick = togglePlay;
 $("#vol").oninput = e => { audio.volume = +e.target.value; store("efm-vol", e.target.value); };
-document.addEventListener("keydown", e=>{ if (e.code==="Space" && !["INPUT","SELECT","BUTTON"].includes(e.target.tagName) && !$("#addModal").classList.contains("open")){ e.preventDefault(); togglePlay(); } });
+document.addEventListener("keydown", e=>{ if (view==="radio" && e.code==="Space" && !["INPUT","SELECT","BUTTON"].includes(e.target.tagName) && !$("#addModal").classList.contains("open")){ e.preventDefault(); togglePlay(); } });
 
 function mediaSession(s){
   if (!("mediaSession" in navigator)) return;
@@ -521,17 +600,208 @@ function confirmBox(s){
   return false;
 }
 document.addEventListener("keydown", e=>{
-  if (e.key==="Escape") closeAdd();
+  if (e.key==="Escape"){ closeAdd(); closeTvAdd(); }
+  if (view!=="radio") return;
   if (e.shiftKey && e.key==="ArrowRight" && !$("#addModal").classList.contains("open")) step(1);
   if (e.shiftKey && e.key==="ArrowLeft" && !$("#addModal").classList.contains("open")) step(-1);
 });
+
+/* ---------- Views ---------- */
+let view = "home";
+function go(v, push){
+  view = ["radio","tv"].includes(v) ? v : "home";
+  if (view!=="tv" && tvCurrent) resetTV();
+  document.body.classList.remove("view-home","view-radio","view-tv");
+  document.body.classList.add("view-"+view);
+  $("#tagline").textContent = view==="radio" ? "Jo'burg · Cape Town · London · Stockholm · Auckland. Tap a station to tune in"
+    : view==="tv" ? "Live news from Sweden, the UK, the world and home"
+    : "Radio and TV from home, and from everywhere you've lived";
+  const want = view==="home" ? location.pathname+location.search : "#"+view;
+  if (push!==false && (location.hash||"") !== (view==="home"?"":"#"+view)) history.pushState(null,"",want);
+  if (view==="home") updateHomeNow();
+  window.scrollTo(0,0);
+}
+function updateHomeNow(){
+  const el=$("#homeNow"); if (!el) return;
+  el.textContent = (current && !audio.paused) ? "♪ Now playing: "+current.name : "";
+}
+window.addEventListener("popstate", ()=>go((location.hash||"").slice(1), false));
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+$("#backBtn").onclick = ()=>go("home");
+
+/* ---------- TV ----------
+   yt: YouTube channel ID, plays the channel's current live stream
+   ytList: YouTube playlist (used for BBC News, which has no 24/7 stream)
+   ytv: a single YouTube video
+   svt: SVT live channel, played inline in Sweden, otherwise opens SVT Play
+   open: link to the official app/page                                    */
+const TV_GROUPS = [
+  { id:"se", name:"Sverige", flag:"🇸🇪", note:"SVT is free public service TV. It plays here when you're in Sweden; if it won't, the button opens SVT Play." },
+  { id:"uk", name:"United Kingdom", flag:"🇬🇧", note:"BBC One, Two, Three and Four only stream inside the UK, so the BBC here is the latest BBC News reports." },
+  { id:"world", name:"World news", flag:"🌍" },
+  { id:"us", name:"United States", flag:"🇺🇸" },
+  { id:"za", name:"South Africa", flag:"🇿🇦" },
+];
+const TV_BUILTIN = [
+  { id:"svt1", group:"se", name:"SVT1", sub:"Live · Rapport, drama, sport", mono:"SVT1", c:["#0a6b4f","#1fbf8f"], svt:"ch-svt1", open:"https://www.svtplay.se/kanaler/svt1" },
+  { id:"svt2", group:"se", name:"SVT2", sub:"Live · Aktuellt, kultur, fakta", mono:"SVT2", c:["#13426e","#3c8ce7"], svt:"ch-svt2", open:"https://www.svtplay.se/kanaler/svt2" },
+  { id:"svt24", group:"se", name:"SVT24", sub:"Live · Nyheter & repriser", mono:"24", c:["#8a1538","#e0457b"], svt:"ch-svt24", open:"https://www.svtplay.se/kanaler/svt24" },
+  { id:"kunskap", group:"se", name:"Kunskapskanalen", sub:"Live · Föreläsningar & dokumentär", mono:"KK", c:["#5a2a91","#a066ea"], svt:"ch-kunskapskanalen", open:"https://www.svtplay.se/kanaler/kunskapskanalen" },
+  { id:"latt", group:"se", name:"Nyheter på lätt svenska", sub:"SVT's daily news in easy Swedish, made for learners", mono:"LÄTT", c:["#d9480f","#ffb547"],
+    open:"https://www.svtplay.se/sok?q=nyheter%20p%C3%A5%20l%C3%A4tt%20svenska", openLabel:"Watch on SVT Play ↗" },
+
+  { id:"sky", group:"uk", name:"Sky News", sub:"Live 24/7 · London", mono:"SKY", c:["#b3001b","#ff3d5a"], yt:"UCoMdktPbSTixAyNGwb-UYkQ", open:"https://www.youtube.com/@SkyNews/live" },
+  { id:"bbc", group:"uk", name:"BBC News", sub:"Latest reports (not a live channel)", mono:"BBC", c:["#111","#555"], ytList:"UU16niRr50-MSBwiO3YDb3RA", open:"https://www.youtube.com/@BBCNews/videos" },
+
+  { id:"aje", group:"world", name:"Al Jazeera English", sub:"Live 24/7 · Doha", mono:"AJE", c:["#c48a00","#ffc93c"], yt:"UCNye-wNBqNL5ZzHSJj3l8Bg", open:"https://www.youtube.com/@aljazeeraenglish/live" },
+  { id:"f24", group:"world", name:"France 24 English", sub:"Live 24/7 · Paris", mono:"F24", c:["#0057b8","#3db8ff"], yt:"UCQfwfsi5VrQ8yKZ-UWmAEFg", open:"https://www.youtube.com/@FRANCE24English/live" },
+  { id:"euronews", group:"world", name:"Euronews", sub:"Live · Brussels & Lyon", mono:"EN", c:["#1a237e","#5c6bc0"], yt:"UCSrZ3UV4jOidv8ppoVuvW9Q", open:"https://www.youtube.com/@euronews/live" },
+  { id:"dw", group:"world", name:"DW News", sub:"Live 24/7 · Berlin", mono:"DW", c:["#05264d","#1c6ed6"], yt:"UCknLrEdhRCp1aegoMqRaCZg", open:"https://www.youtube.com/@dwnews/live" },
+  { id:"bloomberg", group:"world", name:"Bloomberg TV", sub:"Live · Markets & business", mono:"BBG", c:["#2b2b2b","#7a5cff"], yt:"UCIALMKvObZNtJ6AmdCLP7Lg", open:"https://www.youtube.com/@markets/live" },
+
+  { id:"abc", group:"us", name:"ABC News Live", sub:"Live 24/7 · New York", mono:"ABC", c:["#111","#3d3d3d"], yt:"UCBi2mrWuNuyYy4gbM6fW1jA", open:"https://www.youtube.com/@ABCNews/live" },
+  { id:"nbc", group:"us", name:"NBC News NOW", sub:"Live · New York", mono:"NBC", c:["#6a1b9a","#f7a21b"], yt:"UCeY0bbntWzzVIaj2z3QigXg", open:"https://www.youtube.com/@NBCNews/live" },
+  { id:"cbs", group:"us", name:"CBS News 24/7", sub:"Live 24/7 · New York", mono:"CBS", c:["#0b3d91","#4f83e3"], yt:"UC8p1vwvWtl6T73JiExfWs1g", open:"https://www.youtube.com/@CBSNews/live" },
+
+  { id:"sabc", group:"za", name:"SABC News", sub:"Live · Johannesburg", mono:"SABC", c:["#00703c","#f2b705"], yt:"UC8yH-uI81UUtEMDsowQyx1g", open:"https://www.youtube.com/@SABCNews/live" },
+];
+function loadTvCustom(){ try{ return JSON.parse(localStorage.getItem("efm-tv-custom")||"[]") }catch(e){ return [] } }
+function saveTvCustom(l){ try{ localStorage.setItem("efm-tv-custom", JSON.stringify(l)) }catch(e){} }
+let CHANNELS = TV_BUILTIN.concat(loadTvCustom());
+let tvCurrent = null, tvHls = null, tvVideo = null;
+
+function tvKind(ch){ return ch.svt ? "svt" : (ch.yt||ch.ytList||ch.ytv) ? "yt" : "link"; }
+function renderTV(){
+  $("#tvGroups").innerHTML = TV_GROUPS.map(g=>{
+    const list = CHANNELS.filter(c=>c.group===g.id).map(c=>{
+      const k = tvKind(c);
+      const pill = k==="svt" ? '<span class="pill svt">SVT live</span>' : k==="yt" ? `<span class="pill yt">${c.ytList?"Clips":"Live"}</span>` : '<span class="pill link">Opens SVT Play</span>';
+      return `<button class="st ${tvCurrent&&tvCurrent.id===c.id?"on":""}" data-tv="${c.id}">
+        ${c.custom?`<span class="del" data-tvdel="${c.id}" title="Remove channel">✕</span>`:""}
+        <span class="live"><i></i><i></i><i></i><i></i></span>
+        ${badgeHTML(c)}
+        <div><div class="nm">${escapeHtml(c.name)}</div><div class="sub">${escapeHtml(c.sub)}</div></div>
+        ${pill}
+      </button>`;
+    }).join("") + `<button class="st add" data-tvadd="${g.id}"><div class="plus">＋</div><div class="sub">Add a channel</div></button>`;
+    return `<section class="region"><h2>${g.flag} ${g.name}</h2>${g.note?`<div class="note">${g.note}</div>`:""}<div class="grid">${list}</div></section>`;
+  }).join("");
+  $("#tvGroups").querySelectorAll(".st").forEach(b=>b.onclick=e=>{
+    if (e.target.dataset.tvdel){ e.stopPropagation(); removeTv(e.target.dataset.tvdel, e.target); return; }
+    if (b.dataset.tvadd){ openTvAdd(b.dataset.tvadd); return; }
+    watch(b.dataset.tv);
+  });
+}
+function stopTV(){
+  if (tvHls){ try{ tvHls.destroy() }catch(e){} tvHls=null; }
+  if (tvVideo){ try{ tvVideo.pause(); tvVideo.removeAttribute("src"); tvVideo.load(); }catch(e){} tvVideo=null; }
+  $("#screen").innerHTML = "";
+}
+function resetTV(){
+  stopTV(); tvCurrent=null;
+  screenMsg("Pick a channel","Live news plays right here. Rotate your phone or use the player's full-screen button.");
+  $("#tvTitle").textContent="Nothing on"; $("#tvSub").textContent="Tap a channel below"; $("#tvOpen").style.display="none";
+  const b=$("#tvBadge"); b.textContent="TV"; b.style.background="linear-gradient(135deg,#2a2160,#1d1646)";
+  document.querySelectorAll("[data-tv]").forEach(el=>el.classList.remove("on"));
+}
+function screenMsg(title, text){
+  $("#screen").innerHTML = `<div class="ph"><div><b>${escapeHtml(title)}</b>${text}</div></div>`;
+}
+function watch(id){
+  const ch = CHANNELS.find(c=>c.id===id); if (!ch) return;
+  // Radio and TV don't talk over each other
+  if (!audio.paused){ wantPlay=false; audio.pause(); teardown(); setState("paused","Paused"); stopNP(); }
+  stopTV(); tvCurrent = ch;
+  store("efm-tv-last", id);
+  const b=$("#tvBadge"); b.textContent=ch.mono; b.style.background=`linear-gradient(135deg,${ch.c[0]},${ch.c[1]})`;
+  $("#tvTitle").textContent = ch.name; $("#tvSub").textContent = ch.sub;
+  const open=$("#tvOpen");
+  if (ch.open && tvKind(ch)!=="link"){ open.href=ch.open; open.textContent = ch.openLabel || (ch.svt ? "SVT Play ↗" : "YouTube ↗"); open.style.display="inline-block"; }
+  else open.style.display="none";
+  document.querySelectorAll("[data-tv]").forEach(el=>el.classList.toggle("on", el.dataset.tv===id));
+  const k = tvKind(ch);
+  if (k==="yt") playYT(ch);
+  else if (k==="svt") playSVT(ch);
+  else screenMsg(ch.name, `${escapeHtml(ch.sub)}.<br><br><a class="btn pri" style="text-decoration:none" href="${ch.open}" target="_blank" rel="noopener">${ch.openLabel||"Open ↗"}</a>`);
+}
+function playYT(ch){
+  const p = "autoplay=1&playsinline=1&rel=0&modestbranding=1";
+  const src = ch.yt ? `https://www.youtube.com/embed/live_stream?channel=${ch.yt}&${p}`
+            : ch.ytList ? `https://www.youtube.com/embed/videoseries?list=${ch.ytList}&${p}`
+            : `https://www.youtube.com/embed/${ch.ytv}?${p}`;
+  $("#screen").innerHTML = `<iframe src="${src}" title="${escapeHtml(ch.name)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+}
+async function playSVT(ch){
+  screenMsg("Tuning in…", "Connecting to "+escapeHtml(ch.name));
+  const fail = ()=>{ if (tvCurrent!==ch) return; stopTV();
+    screenMsg(ch.name+" won't play here", `SVT only streams inside Sweden, and sometimes only in its own app.<br><br><a class="btn pri" style="text-decoration:none" href="${ch.open}" target="_blank" rel="noopener">Watch in SVT Play ↗</a>`); };
+  try{
+    const j = await withTimeout(fetch(`https://api.svt.se/video/${ch.svt}`).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }), 8000);
+    const refs = (j && j.videoReferences) || [];
+    const order = ["hls-cmaf-full","hls-cmaf-live","hls-ts-full","hls"];
+    let ref = null; for (const f of order){ ref = refs.find(r=>r.format===f); if (ref) break; }
+    if (!ref) ref = refs.find(r=>/hls/.test(r.format||""));
+    if (!ref) throw new Error("no hls");
+    let url = ref.url || ref.redirect;
+    if (ref.resolve){ const rj = await withTimeout(fetch(ref.resolve).then(r=>r.json()), 6000).catch(()=>null); if (rj && rj.location) url = rj.location; }
+    if (!url || tvCurrent!==ch) { if (!url) throw new Error("no url"); return; }
+    $("#screen").innerHTML = '<video playsinline controls autoplay></video>';
+    tvVideo = $("#screen video");
+    const guard = setTimeout(()=>{ if (tvVideo && tvVideo.readyState<2) fail(); }, 15000);
+    tvVideo.addEventListener("playing", ()=>clearTimeout(guard), {once:true});
+    if (tvVideo.canPlayType("application/vnd.apple.mpegurl")){
+      tvVideo.src = url;
+      tvVideo.addEventListener("error", ()=>{ clearTimeout(guard); fail(); }, {once:true});
+    } else {
+      await loadHlsJs();
+      if (!window.Hls || !Hls.isSupported()) throw new Error("no hls.js");
+      tvHls = new Hls(); tvHls.on(Hls.Events.ERROR, (e,d)=>{ if (d.fatal){ clearTimeout(guard); fail(); } });
+      tvHls.loadSource(url); tvHls.attachMedia(tvVideo);
+    }
+    try{ await tvVideo.play(); }catch(e){ /* autoplay blocked: controls are showing, one tap starts it */ }
+  }catch(e){ fail(); }
+}
+
+/* Add / remove TV channels */
+function parseYouTube(u){
+  let m;
+  if ((m = u.match(/\/channel\/(UC[\w-]{22})/))) return { yt:m[1], open:`https://www.youtube.com/channel/${m[1]}/live` };
+  if ((m = u.match(/(?:[?&]v=|youtu\.be\/|\/live\/|\/embed\/|\/shorts\/)([\w-]{11})/))) return { ytv:m[1], open:`https://www.youtube.com/watch?v=${m[1]}` };
+  if ((m = u.match(/youtube\.com\/(@[\w.-]+)/))) return { open:`https://www.youtube.com/${m[1]}/live`, openLabel:"Open in YouTube ↗" };
+  return null;
+}
+function openTvAdd(group){
+  $("#tGroup").innerHTML = TV_GROUPS.map(g=>`<option value="${g.id}" ${g.id===group?"selected":""}>${g.flag} ${g.name}</option>`).join("");
+  $("#tvForm").reset(); $("#tGroup").value = group || "world"; $("#tMsg").textContent=""; $("#tMsg").className="msg";
+  $("#tvModal").classList.add("open"); setTimeout(()=>$("#tName").focus(),50);
+}
+function closeTvAdd(){ $("#tvModal").classList.remove("open"); }
+$("#tCancel").onclick = closeTvAdd;
+$("#tvModal").onclick = e=>{ if (e.target.id==="tvModal") closeTvAdd(); };
+$("#tvForm").onsubmit = e=>{
+  e.preventDefault();
+  const name=$("#tName").value.trim(), url=$("#tUrl").value.trim(), info=parseYouTube(url), m=$("#tMsg");
+  if (!name) return;
+  if (!info){ m.className="msg bad"; m.textContent="That doesn't look like a YouTube channel or video link."; return; }
+  const list = loadTvCustom();
+  const ch = Object.assign({ id:"t"+Date.now(), custom:true, group:$("#tGroup").value, name, sub: info.yt||info.ytv ? "Added by you" : "Added by you · opens YouTube",
+    mono:(name.replace(/[^A-Za-z0-9]/g,"").slice(0,3)||"TV").toUpperCase(), c:PALETTES[list.length % PALETTES.length] }, info);
+  list.push(ch); saveTvCustom(list); CHANNELS = TV_BUILTIN.concat(list);
+  closeTvAdd(); renderTV(); watch(ch.id);
+};
+function removeTv(id, el){
+  if (el.dataset.armed){ const list=loadTvCustom().filter(x=>x.id!==id); saveTvCustom(list); CHANNELS=TV_BUILTIN.concat(list); if (tvCurrent&&tvCurrent.id===id){ stopTV(); tvCurrent=null; } renderTV(); return; }
+  el.dataset.armed="1"; el.textContent="Sure?"; el.style.width="auto"; el.style.padding="0 9px"; el.style.borderRadius="999px"; el.style.background="var(--hot)"; el.style.color="#fff";
+  setTimeout(()=>{ if(el.isConnected){ delete el.dataset.armed; el.textContent="✕"; el.removeAttribute("style"); } }, 3000);
+}
 
 /* ---------- Boot ---------- */
 (function init(){
   const v = read("efm-vol"); if (v) $("#vol").value = v;
   const f = read("efm-filter"); if (f) filter = f;
   $("#viz").innerHTML = Array.from({length:40},(_,i)=>`<i style="--h:${6+Math.round(Math.abs(Math.sin(i*1.7))*16)}px;animation-delay:${(i%7)*0.11}s"></i>`).join("");
-  renderTabs(); renderRegions();
+  renderTabs(); renderRegions(); renderTV();
+  go((location.hash||"").slice(1), false);
   const last = read("efm-last"), s = last && STATIONS.find(x=>x.id===last);
   if (s){
     current = s; $("#playBtn").disabled = false;
