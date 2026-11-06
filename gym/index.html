@@ -881,7 +881,7 @@ function setCtl(it,e,key){
   const done=it.done||0;
   if(done>=it.sets) return `<div class="log" style="color:var(--acc);font-weight:700">All ${it.sets} sets done <button class="mini" data-a="setReset" data-v="${key}">Reset</button></div>`;
   const hold=e.unit==="s"?holdSecs(it):0;
-  const label = hold ? `Start set ${done+1}: ${hold} s hold` : (done+1<it.sets ? `Set ${done+1} done, rest ${fmtRest(it.rest)}` : `Last set done`);
+  const label = hold ? `Start timer, set ${done+1}: ${hold} s hold` : (done+1<it.sets ? `Set ${done+1} done, rest ${fmtRest(it.rest)}` : `Last set done`);
   return `<button class="tbtn" style="width:100%;margin:0 0 12px" data-a="${hold?"timerHold":"setDone"}" data-v="${key}">${svg(hold?"play":"timer")}${label}</button>`;
 }
 
@@ -1140,7 +1140,7 @@ function vSession(){
   ${ui.warm?`<ul class="foldbody">${WARMUP[m.type].map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
   ${s.blocks.map((b,bi)=>`<section class="sheet">
     <div class="sheet-h"><h2>${esc(b.title)}</h2>${b.kind==="circuit"?`<p><span class="rounds">${b.rounds} rounds</span><br>${fmtW(b.work)} on, ${fmtW(b.rest)} off</p>`:`<p>${note0(m.goal)}</p>`}</div>
-    ${b.kind==="circuit"&&!ui.edit&&b.items.length?`<div style="padding-top:14px"><button class="tbtn" data-a="timerCircuit" data-v="${bi}">${svg("play")}Start circuit timer</button></div>`:""}
+    ${b.kind==="circuit"&&!ui.edit&&b.items.length?`<div style="padding-top:14px"><button class="tbtn" data-a="timerCircuit" data-v="${bi}">${svg("play")}Start timer</button></div>`:""}
     ${b.kind==="circuit"&&ui.edit?`<div class="edit" style="padding-top:12px"><div class="step"><button data-a="rounds" data-v="${bi}:-1" aria-label="Fewer rounds">−</button><span>${b.rounds} rounds</span><button data-a="rounds" data-v="${bi}:1" aria-label="More rounds">+</button></div></div>`:""}
     ${b.items.map((it,ii)=>vItem(s,b,bi,it,ii)).join("")}
     ${b.kind==="circuit"?`<p class="small" style="padding:0 18px 14px">Rest 1 min between rounds.</p>`:""}
