@@ -395,7 +395,7 @@ function vkProp(kind){
   }
 }
 function viking(pose,size,cls){
-  if(pose==="face") return `<svg class="vk ${cls||""}" viewBox="26 8 68 68" width="${size}" height="${size}" aria-hidden="true">${vkBust()}</svg>`;
+  if(pose==="face") return `<svg class="vk ${cls||""}" viewBox="12 10 96 96" width="${size}" height="${size}" aria-hidden="true">${vkBust()}</svg>`;
   const p = pose==="head"||pose==="idle"||pose==="wave" ? "" : pose;
   const behind = p==="kb"||p==="db"||p==="bb"||p==="flex"||p==="trophy" ? vkProp(p) : "";
   const front = p==="rope" ? vkProp(p) : "";
