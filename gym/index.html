@@ -616,10 +616,14 @@ function matches(e,spec){
   return spec.split("+").every(part=>{const [k,v]=part.split(":"); const o=v.split("|"); return k==="p"?o.includes(e.pattern):o.includes(e.group);});
 }
 function wpick(items,weights){ let t=weights.reduce((a,b)=>a+b,0), r=Math.random()*t; for(let i=0;i<items.length;i++){ r-=weights[i]; if(r<=0) return items[i]; } return items[items.length-1]; }
+let POOL_ALL=null;
+function pickAny(cands,spec,used,goal,primary,circuit,where){
+  return pickEx(cands,spec,used,goal,primary,circuit,where) || (POOL_ALL&&POOL_ALL!==cands ? pickEx(POOL_ALL,spec,used,goal,primary,circuit,where) : null);
+}
 function pickEx(cands,spec,used,goal,primary,circuit,where){
   let c=cands.filter(e=>!used.has(e.id)&&e.pattern!=="mob"&&!(circuit&&NO_CIRCUIT.has(e.id))&&matches(e,spec));
   if(!c.length) return null;
-  if(where==="gym"){ const nb=c.filter(e=>!e.equip.includes("band")); if(nb.length) c=nb; }
+  if(where==="gym"){ c=c.filter(e=>!e.equip.includes("band")); if(!c.length) return null; }
   if(primary){ const big=c.filter(e=>BIG.has(e.id)); if(big.length) c.splice(0,c.length,...big); }
   const w=c.map(e=>{
     let x=1;
@@ -637,7 +641,7 @@ function pickEx(cands,spec,used,goal,primary,circuit,where){
 function isUni(e){ return UNI.has(e.id); }
 function params(e,goal,role){
   const f=fit(); let sets,reps,rest,work;
-  if(goal==="strength"){ if(role==="p"){sets=f>=8?5:f<=3?3:4;reps="4–6";rest=150;work=30;} else {sets=3;reps="8–10";rest=90;work=40;} }
+  if(goal==="strength"){ if(role==="p"){sets=f>=8?5:f<=3?3:4;reps="4–6";rest=150;work=30;} else {sets=3;reps="8–10";rest=75;work=40;} }
   else if(goal==="muscle"){ if(role==="p"){sets=f<=3?3:4;reps="6–8";rest=120;work=40;} else {sets=f<=3?2:3;reps="8–12";rest=60;work=45;} }
   else { sets=f<=3?2:3; reps="15–20"; rest=45; work=50; }
   if(e.type==="cal"&&goal==="strength"){ rest = role==="p"?120:75; }
@@ -663,17 +667,26 @@ function makeItem(e,goal,role){ return Object.assign({id:e.id,role},params(e,goa
 /* ============ ENGINE ============ */
 let ctxWhere="home";
 function buildStraight(cands,slots,goal,budget){
-  const items=[], used=new Set(); let t=0,i=0,miss=0;
-  const prim = goal==="strength"?2:goal==="muscle"?1:0;
+  const items=[], used=new Set(); let t=0,i=0,miss=0,pc=0;
+  const prim = goal==="strength"?(budget<=25?1:2):goal==="muscle"?1:0;
   while(items.length<10 && miss<slots.length){
     const spec=slots[i%slots.length]; i++;
-    const role=items.length<prim?"p":"a";
-    const e=pickEx(cands,spec,used,goal,role==="p",false,ctxWhere);
+    const want=pc<prim;
+    const e=pickAny(cands,spec,used,goal,want,false,ctxWhere);
     if(!e){miss++;continue;}
     miss=0;
+    const role = want&&BIG.has(e.id)?"p":"a";
     const it=makeItem(e,goal,role), m=itemMins(it);
-    if(t+m>budget+2 && items.length>=3) break;
-    used.add(e.id); items.push(it); t+=m;
+    if(t+m>budget+2 && items.length>=2) break;
+    used.add(e.id); items.push(it); t+=m; if(role==="p") pc++;
+  }
+  // trim if over time
+  let g2=0;
+  while(t>budget+2 && g2++<30){
+    const it=items.filter(x=>x.sets>2).sort((a,b)=>b.sets-a.sets)[0];
+    if(it){ it.sets--; t-=(it.work+it.rest)/60; continue; }
+    if(items.length>2){ const x=items.pop(); t-=itemMins(x); continue; }
+    break;
   }
   // top up sets if time is left over
   let guard=0;
@@ -698,7 +711,7 @@ function buildCircuits(cands,slots,goal,budget,type){
     let N = type==="skip"?Math.min(6,Math.max(2,Math.floor(per/((work+rest)/60)/2)||2)):(per<=18?4:per<=28?5:6);
     const items=[]; let i=c, miss=0;
     while(items.length<N && miss<slots.length+2){
-      const e=pickEx(cands,slots[i%slots.length],used,"cond",false,true,ctxWhere); i++;
+      const e=pickAny(cands,slots[i%slots.length],used,"cond",false,true,ctxWhere); i++;
       if(!e){miss++;continue;} miss=0; used.add(e.id);
       items.push({id:e.id,role:"c",sets:1,reps:e.unit==="m"?"carry for the interval":fmtW(work),rest:0,work:0});
     }
@@ -729,6 +742,7 @@ function generate(w){
   const ovh=time<=20?4:8, budget=Math.max(5,time-ovh);
   const ml=maxLevel();
   let all=pool(type,c), cands=all.filter(e=>e.level<=ml);
+  POOL_ALL = type==="wt"&&w.where==="home" ? all.concat(pool("cal",c).filter(x=>!all.includes(x)&&x.level<=Math.max(ml,2))) : all;
   if(cands.length<4) cands=all;
   let blocks;
   if(type==="skip"){ blocks=buildCircuits(cands,["p:cond"],goal,budget,type); focus=null; }
@@ -739,6 +753,12 @@ function generate(w){
     const slots = slotsFor();
     blocks=buildStraight(cands,slots,goal,budget);
   }
+  if(!blocks.flatMap(b=>b.items).length && type!=="skip"){
+    const fb = type==="kb"?KB_SLOTS.full:SLOTS.full;
+    blocks = goal==="cond" ? buildCircuits(cands,COND_SLOTS[type],goal,budget,type) : buildStraight(cands,fb,goal,budget);
+    focus="full";
+  }
+  POOL_ALL=null;
   const out=finalize({meta:{where:w.where,type,goal,focus,time,mode:"auto",effort:w.effort||null,ovh},blocks}); EFFORT=null; return out;
 }
 function buildManual(d,ids){
@@ -1143,7 +1163,7 @@ function vSession(){
   <h1 class="display">${esc(hd.h)}</h1>
   <p class="lede" style="margin-bottom:16px">${m.effort==="easy"?"Easy tick-over":GOALS[m.goal]} session${m.time?`, built for ${m.time} minutes`:""}</p>
   <div class="figs"><div><b>${s.mins}</b><span class="fl">${svg("clock")}minutes</span></div><div><b>${s.kcal}</b><span class="fl">${svg("flame")}kcal, rough</span></div><div><b>${nEx}</b><span class="fl">${svg("list")}exercises</span></div></div>
-  ${nEx===0?`<div class="warn">No exercises fit that combination with your kit. Pick another focus or add equipment.</div>`:""}
+  ${nEx===0?`<div class="warn">No exercises fit that combination with your kit. Pick another focus or add equipment.</div>`:nEx<3&&m.type!=="skip"&&(s.mins||0)>=25?`<div class="warn">Only ${nEx} exercise${nEx>1?"s":""} fit this with your kit. Add equipment in Settings, or pick another focus, for more variety.</div>`:""}
   <button class="fold ${ui.warm?"open":""}" data-a="fold" data-v="warm" aria-expanded="${!!ui.warm}"><span>Warm-up, ${(m.ovh||8)<8?3:5} min</span><span class="chev">›</span></button>
   ${ui.warm?`<ul class="foldbody">${WARMUP[m.type].map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
   ${s.blocks.map((b,bi)=>`<section class="sheet">
