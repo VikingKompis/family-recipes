@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#E8EAEB">
+<meta name="theme-color" content="#1A2027">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GymKompis">
 <title>GymKompis</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -18,8 +18,8 @@
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#E8EAEB; --sheet:#FFFFFF; --soft:#F2F3F4; --ink:#16191C; --steel:#5F676E; --line:#D6DADD;
-  --red:#D7262E; --blue:#1F5FBF; --yel:#F2C230; --grn:#1E9E57;
+  --bg:#1A2027; --sheet:#232A33; --soft:#2D3641; --ink:#EEF1F4; --steel:#929DA9; --line:#333D49;
+  --acc:#D4A84B; --on-acc:#1C1608; --iron:#3C4754;
   --disp:"Big Shoulders Display",Impact,"Arial Narrow",sans-serif;
   --body:"Atkinson Hyperlegible",system-ui,-apple-system,sans-serif;
 }
@@ -27,7 +27,7 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--body);font-siz
 #app{max-width:560px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 18px calc(120px + env(safe-area-inset-bottom));min-height:100vh}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
 a{color:inherit}
-:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:6px}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:6px}
 
 /* header */
 .top{display:flex;align-items:center;justify-content:space-between;height:52px;margin-bottom:8px}
@@ -46,13 +46,13 @@ a{color:inherit}
 .small{font-size:14px;color:var(--steel)}
 
 /* hero */
-.hero{display:block;width:100%;background:var(--ink);color:#fff;border-radius:22px;padding:18px 20px 22px;margin-bottom:14px}
+.hero{display:block;width:100%;background:linear-gradient(165deg,#2A333D,#212831);border:1px solid var(--line);color:var(--ink);border-radius:22px;padding:18px 20px 22px;margin-bottom:14px}
 .hero .bbell{display:block;width:100%;height:auto;margin:2px 0 14px}
 .hero-t{display:block;font-family:var(--disp);font-weight:900;font-size:36px;line-height:1}
-.hero-d{display:block;color:#B9C0C6;margin-top:6px;font-size:16px}
+.hero-d{display:block;color:var(--steel);margin-top:6px;font-size:16px}
 
 /* rows */
-.list{background:var(--sheet);border-radius:18px;overflow:hidden}
+.list{background:var(--sheet);border:1px solid var(--line);border-radius:18px;overflow:hidden}
 .row{display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;border-top:1px solid var(--line)}
 .row:first-child{border-top:0}
 .row-ic{width:40px;height:40px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:none}
@@ -61,24 +61,24 @@ a{color:inherit}
 .row-b b{display:block;font-size:17px}
 .row-b small{display:block;color:var(--steel);font-size:14px;margin-top:1px}
 .chev{color:var(--steel);font-size:24px;line-height:1}
-.plate{display:inline-block;border-radius:50%;background:radial-gradient(circle,var(--bg) 0 18%,var(--pc) 19% 100%);flex:none;box-shadow:inset 0 0 0 2px rgba(0,0,0,.12)}
+.plate{display:inline-block;border-radius:50%;background:radial-gradient(circle,var(--sheet) 0 15%,var(--acc) 16% 23%,var(--iron) 24% 100%);flex:none;box-shadow:inset 0 0 0 2px #4A5664}
 
 /* buttons */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:14px;padding:16px;background:var(--ink);color:#fff;font-weight:700;font-size:17px;text-decoration:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:14px;padding:16px;background:var(--acc);color:var(--on-acc);font-weight:700;font-size:17px;text-decoration:none}
 .btn.ghost{background:var(--sheet);color:var(--ink)}
 .btn:disabled{opacity:.35;cursor:default}
 .btn svg{width:20px;height:20px}
 .mini{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border-radius:10px;padding:9px 12px;font-size:15px;font-weight:700;text-decoration:none;color:var(--ink)}
 .mini svg{width:18px;height:18px}
-.mini.danger{color:var(--red)}
+.mini.danger{color:#F08A7E}
 
 /* sticky bar */
-.dock{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(232,234,235,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(26,32,39,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
 .dock .in{max-width:524px;margin:0 auto;display:flex;gap:10px;align-items:center}
 .dock .btn{flex:1;width:auto}
 .dock .sq{width:52px;height:52px;flex:none;border-radius:14px;background:var(--sheet);display:grid;place-items:center}
 .dock .sq svg{width:22px;height:22px}
-.dock .sq.on{background:var(--ink);color:#fff}
+.dock .sq.on{background:var(--acc);color:var(--on-acc)}
 .dock .info{flex:1;font-size:14px;color:var(--steel);line-height:1.3}
 .dock .info b{display:block;color:var(--ink);font-size:16px}
 
@@ -88,19 +88,19 @@ a{color:inherit}
 .tile svg{width:32px;height:32px}
 .tile b{font-size:17px}
 .tile small{font-size:13px;color:var(--steel);margin-top:-6px}
-.tile.on{box-shadow:inset 0 0 0 2.5px var(--ink)}
+.tile.on{box-shadow:inset 0 0 0 2px var(--acc)}.tile.on svg{color:var(--acc)}
 .tile:disabled{opacity:.45;cursor:default}
-.opts{background:var(--sheet);border-radius:18px;overflow:hidden}
+.opts{background:var(--sheet);border:1px solid var(--line);border-radius:18px;overflow:hidden}
 .opt{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;border-top:1px solid var(--line)}
 .opt:first-child{border-top:0}
 .opt .ob{flex:1}
 .opt b{display:block}
 .opt small{display:block;font-size:14px;color:var(--steel)}
 .radio{width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--line);flex:none}
-.opt.on .radio{box-shadow:inset 0 0 0 7px var(--ink)}
+.opt.on .radio{box-shadow:inset 0 0 0 7px var(--acc)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{background:var(--sheet);border-radius:999px;padding:10px 16px;font-weight:700;font-size:15px}
-.chip.on{background:var(--ink);color:#fff}
+.chip.on{background:var(--acc);color:var(--on-acc)}
 .chip.sm{padding:8px 13px;font-size:14px}
 .qmark{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--soft);font-weight:700;font-size:14px;flex:none}
 
@@ -116,11 +116,11 @@ a{color:inherit}
 .fold.open .chev{transform:rotate(90deg)}
 .foldbody{background:var(--sheet);border-radius:0 0 16px 16px;padding:0 18px 14px 38px;margin-bottom:10px;color:var(--steel)}
 .foldbody li{padding:3px 0}
-.sheet{background:var(--sheet);border-radius:18px;margin:10px 0 12px;overflow:hidden}
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:18px;margin:10px 0 12px;overflow:hidden}
 .sheet-h{padding:16px 18px 12px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:1px solid var(--line)}
 .sheet-h h2{font-family:var(--disp);font-weight:800;font-size:26px;line-height:1}
 .sheet-h p{font-size:14px;color:var(--steel);text-align:right;line-height:1.3}
-.sheet-h .rounds{color:var(--ink);font-weight:700}
+.sheet-h .rounds{color:var(--acc);font-weight:700}
 .exr{border-top:1px solid var(--line)}
 .exr:first-of-type{border-top:0}
 .exr-h{display:flex;gap:14px;align-items:flex-start;width:100%;padding:14px 16px 14px 18px}
@@ -128,7 +128,7 @@ a{color:inherit}
 .exr-b{flex:1;min-width:0}
 .exr-name{display:block;font-weight:700;font-size:17px;line-height:1.25}
 .exr-rx{display:block;margin-top:3px;color:var(--steel);font-size:15px}
-.exr-rx b{font-family:var(--disp);font-weight:900;font-size:24px;color:var(--ink);margin-right:8px;letter-spacing:.01em}
+.exr-rx b{font-family:var(--disp);font-weight:900;font-size:24px;color:var(--acc);margin-right:8px;letter-spacing:.01em}
 .exr-wt{display:block;font-size:14px;margin-top:2px}
 .exr-ic{width:40px;height:40px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:none}
 .exr-ic svg{width:26px;height:26px}
@@ -138,7 +138,7 @@ a{color:inherit}
 .log{display:flex;align-items:center;gap:10px;margin:0 0 12px;flex-wrap:wrap;font-size:15px}
 .log input[type=number]{width:86px}
 .log label{display:flex;align-items:center;gap:8px;cursor:pointer}
-.log input[type=checkbox]{width:22px;height:22px;accent-color:var(--ink)}
+.log input[type=checkbox]{width:22px;height:22px;accent-color:var(--acc)}
 .edit{display:flex;gap:8px;align-items:center;padding:0 18px 14px 52px;flex-wrap:wrap}
 .step{display:flex;align-items:center;background:var(--soft);border-radius:10px;overflow:hidden}
 .step button{width:38px;height:40px;font-size:20px;font-weight:700;text-align:center}
@@ -150,38 +150,38 @@ a{color:inherit}
 .field label{display:block;font-weight:700;font-size:15px;margin-bottom:6px}
 input[type=text],input[type=number],input[type=search]{width:100%;background:var(--sheet);border:2px solid transparent;color:var(--ink);border-radius:12px;padding:12px 14px;font:inherit;font-size:16px;outline:none}
 .sheet input[type=number],.sheet input[type=text],.soft-in{background:var(--soft)}
-input:focus{border-color:var(--ink)}
+input:focus{border-color:var(--acc)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fitbox{background:var(--sheet);border-radius:16px;padding:16px 18px}
 .fitrow{display:flex;align-items:baseline;gap:12px}
-.fitv{font-family:var(--disp);font-weight:900;font-size:56px;line-height:.9}
+.fitv{font-family:var(--disp);font-weight:900;font-size:56px;line-height:.9;color:var(--acc)}
 .fitd{font-weight:700}
-input[type=range]{width:100%;accent-color:var(--ink);margin-top:10px;height:30px}
+input[type=range]{width:100%;accent-color:var(--acc);margin-top:10px;height:30px}
 .eqgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .eq{background:var(--sheet);border-radius:14px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:700;text-align:center;line-height:1.15;box-shadow:inset 0 0 0 2px transparent}
 .eq svg{width:34px;height:34px;color:var(--steel)}
-.eq.on{box-shadow:inset 0 0 0 2.5px var(--ink)}
-.eq.on svg{color:var(--ink)}
+.eq.on{box-shadow:inset 0 0 0 2px var(--acc)}
+.eq.on svg{color:var(--acc)}
 
 /* library */
 .libtools{display:flex;gap:8px;margin:2px 0 12px}
 .tabs{display:flex;gap:6px;overflow-x:auto;margin:0 -18px 12px;padding:0 18px;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
 .tabs .chip{flex:none}
-.cnt{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:10px;background:var(--red);color:#fff;font-size:12px;margin-left:6px;padding:0 5px}
+.cnt{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:10px;background:var(--acc);color:var(--on-acc);font-size:12px;margin-left:6px;padding:0 5px}
 .lib{display:flex;gap:14px;align-items:flex-start;padding:14px 16px 14px 18px;border-top:1px solid var(--line)}
 .lib:first-child{border-top:0}
 .lib .exr-b{cursor:pointer}
 .lvl{font-size:13px;color:var(--steel)}
 .add{width:40px;height:40px;border-radius:50%;background:var(--soft);font-size:24px;font-weight:700;display:grid;place-items:center;flex:none}
-.lib.sel .add{background:var(--ink);color:#fff}
+.lib.sel .add{background:var(--acc);color:var(--on-acc)}
 .lib .cue{margin:8px 0 10px}
 
 .note{font-size:14px;color:var(--steel);margin-top:18px}
-.warn{background:#FCEBEC;color:#8E1C21;border-radius:14px;padding:12px 14px;font-size:15px;margin:10px 0}
+.warn{background:#3A2724;color:#F4BBAF;border-radius:14px;padding:12px 14px;font-size:15px;margin:10px 0}
 .empty{background:var(--sheet);border-radius:18px;padding:28px 20px;text-align:center;color:var(--steel)}
 textarea.copy{width:100%;height:220px;background:var(--sheet);border:0;border-radius:14px;padding:14px;font:inherit;font-size:14px;margin-top:10px}
-#toast{position:fixed;left:50%;bottom:calc(94px + env(safe-area-inset-bottom));transform:translate(-50%,12px);background:var(--ink);color:#fff;font-weight:700;padding:11px 18px;border-radius:999px;opacity:0;transition:.2s;pointer-events:none;z-index:20;font-size:15px;white-space:nowrap}
+#toast{position:fixed;left:50%;bottom:calc(94px + env(safe-area-inset-bottom));transform:translate(-50%,12px);background:var(--acc);color:var(--on-acc);font-weight:700;padding:11px 18px;border-radius:999px;opacity:0;transition:.2s;pointer-events:none;z-index:20;font-size:15px;white-space:nowrap}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 
 /* the one moment: plates load onto the bar */
@@ -767,24 +767,24 @@ function shareText(s){
 
 /* ============ VIEW HELPERS ============ */
 const $app=document.getElementById("app");
-const PC={strength:"#D7262E",muscle:"#1F5FBF",cond:"#F2C230",endurance:"#1E9E57"};
+const PSIZE={strength:36,muscle:31,cond:26,endurance:22};
 const GOAL_D={strength:"Heavy weight, low reps, long rest",muscle:"Moderate weight, 8–12 reps",cond:"Timed circuits, short rest, a proper sweat",endurance:"Lighter weight, high reps, little rest"};
 const LVL=["","Beginner","Intermediate","Advanced"];
-function plate(goal,size){ return `<span class="plate" style="--pc:${PC[goal]||"#5F676E"};width:${size}px;height:${size}px" aria-hidden="true"></span>`; }
-function mark(){ return `<svg viewBox="0 0 40 28" aria-hidden="true"><rect x="0" y="12" width="40" height="4" rx="2" fill="#A3AAB0"/><rect x="5" y="1" width="7" height="26" rx="2" fill="#D7262E"/><rect x="13" y="4" width="5.5" height="20" rx="2" fill="#1F5FBF"/><rect x="19.5" y="7" width="4.5" height="14" rx="1.5" fill="#F2C230"/><rect x="25" y="9" width="4" height="10" rx="1.5" fill="#1E9E57"/><rect x="30" y="10.5" width="3" height="7" rx="1" fill="#6B737A"/></svg>`; }
+function plate(goal,size){ const z=Math.round(size*(PSIZE[goal]||28)/36); return `<span style="width:${size}px;height:${size}px;display:grid;place-items:center;flex:none"><span class="plate" style="width:${z}px;height:${z}px" aria-hidden="true"></span></span>`; }
+function mark(){ return `<svg viewBox="0 0 40 28" aria-hidden="true"><rect x="0" y="12" width="40" height="4" rx="2" fill="#9AA4AE"/><rect x="5" y="1" width="7" height="26" rx="2" fill="#4A5664" stroke="#6A7684" stroke-width="1"/><rect x="13" y="4" width="5.5" height="20" rx="2" fill="#4A5664" stroke="#6A7684" stroke-width="1"/><rect x="19.5" y="7" width="4.5" height="14" rx="1.5" fill="#4A5664" stroke="#6A7684" stroke-width="1"/><rect x="25.5" y="9.5" width="4" height="9" rx="1.2" fill="#D4A84B"/></svg>`; }
 function barbell(cols,dark,cls){
   const W=340,H=118,cy=59, c=cols.slice(0,6);
-  const bar=dark?"#5A6167":"#A3AAB0", sleeve=dark?"#7C848A":"#8A9298";
+  const bar="#8C97A2", sleeve="#6E7985", brass="#D4A84B";
   let s=`<svg class="bbell ${cls||""}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><rect x="0" y="${cy-3.5}" width="${W}" height="7" rx="3.5" fill="${bar}"/>`;
   s+=`<rect x="${W/2-70}" y="${cy-5}" width="140" height="10" rx="2" fill="${sleeve}" opacity=".55"/>`;
   let xl=W/2-78, xr=W/2+78;
-  s+=`<rect x="${xl-6}" y="${cy-13}" width="7" height="26" rx="2" fill="${sleeve}"/><rect x="${xr-1}" y="${cy-13}" width="7" height="26" rx="2" fill="${sleeve}"/>`;
+  s+=`<rect x="${xl-6}" y="${cy-13}" width="7" height="26" rx="2" fill="${brass}"/><rect x="${xr-1}" y="${cy-13}" width="7" height="26" rx="2" fill="${brass}"/>`;
   xl-=8; xr+=8;
   c.forEach((col,i)=>{
     const h=Math.max(46,112-i*12), w=i<2?15:12;
     xl-=w; const y=cy-h/2;
-    s+=`<rect class="pl" style="--i:${i};--dx:-36px" x="${xl}" y="${y}" width="${w}" height="${h}" rx="3" fill="${col}"/>`;
-    s+=`<rect class="pl" style="--i:${i};--dx:36px" x="${xr}" y="${y}" width="${w}" height="${h}" rx="3" fill="${col}"/>`;
+    const pl=x=>`<g class="pl" style="--i:${i};--dx:${x<W/2?-36:36}px"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${col}" stroke="#5D6977" stroke-width="1.5"/><rect x="${x+w/2-1}" y="${y+6}" width="2" height="${h-12}" rx="1" fill="#2E3741"/></g>`;
+    s+=pl(xl)+pl(xr);
     xr+=w+3; xl-=3;
   });
   return s+"</svg>";
@@ -830,7 +830,7 @@ function vHome(){
   return hdr(null,`<button class="iconbtn" data-a="go" data-v="settings" aria-label="Settings">${svg("gear")}</button>`) + `
   <h1 class="display">${greet()}, ${esc(p.name||"kompis")}.</h1>
   <p class="lede">What are we training today?</p>
-  <button class="hero" data-a="startWiz" data-v="auto">${barbell([PC.strength,PC.muscle,PC.cond,PC.endurance],true)}
+  <button class="hero" data-a="startWiz" data-v="auto">${barbell(["#3C4754","#3C4754","#3C4754","#3C4754"],true)}
     <span class="hero-t">Build today's session</span><span class="hero-d">Pick where, what and how long. GymKompis does the rest.</span></button>
   <div class="list">
     <button class="row" data-a="startWiz" data-v="manual"><span class="row-ic">${svg("list")}</span><span class="row-b"><b>Build it myself</b><small>Choose from ${EX.length} exercises</small></span><span class="chev">›</span></button>
@@ -928,7 +928,7 @@ function vSession(){
   const wa="https://wa.me/?text="+encodeURIComponent(shareText(s));
   const note = g => g==="strength"?"Big lift first. Pick weights you could lift for 2 more reps.":g==="endurance"?"Light weights, short rest.":"Pick weights where the last 2 reps are hard.";
   return hdr(back("home","Home"), m.mode==="auto"?`<button class="nav" data-a="rebuild">${svg("refresh")}New version</button>`:"") + `
-  ${barbell(items.map(()=>PC[m.goal]),false,"s-bar")}
+  ${barbell(items.map(()=>"#3C4754"),false,"s-bar")}
   <h1 class="display">${esc(hd.h)}</h1>
   <p class="lede" style="margin-bottom:16px">${esc(hd.sub)}</p>
   <div class="figs"><div><b>${s.mins}</b><span>minutes</span></div><div><b>${s.kcal}</b><span>kcal, rough</span></div><div><b>${nEx}</b><span>exercises</span></div></div>
@@ -944,7 +944,7 @@ function vSession(){
   <button class="fold ${ui.cool?"open":""}" data-a="fold" data-v="cool" aria-expanded="${!!ui.cool}"><span>Cool-down, 3 min</span><span class="chev">›</span></button>
   ${ui.cool?`<ul class="foldbody">${COOL.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
   ${hasLoaded?`<button class="btn ghost" style="margin-top:6px" data-a="logWeights">Save today's weights</button>`:""}
-  ${ui.shareFallback?`<a class="btn ghost" style="margin-top:10px;background:#25D366;color:#062612" href="${wa}" target="_blank" rel="noopener">Open WhatsApp</a>`:""}
+  ${ui.shareFallback?`<a class="btn ghost" style="margin-top:10px" href="${wa}" target="_blank" rel="noopener">Open WhatsApp</a>`:""}
   ${ui.copyBox?`<textarea class="copy" readonly aria-label="Session as text">${esc(shareText(s))}</textarea>`:""}
   ${ui.saveFull?`<div class="warn">You've got 10 saved sessions. Delete one in Saved sessions first.</div>`:""}
   <p class="note">Tap an exercise for how to do it, a swap, and to log today's weight. Logged weights are used to suggest your next step up.</p>
