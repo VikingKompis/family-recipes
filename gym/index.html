@@ -55,7 +55,7 @@ a{color:inherit}
 .list{background:var(--sheet);border:1px solid var(--line);border-radius:18px;overflow:hidden}
 .row{display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;border-top:1px solid var(--line)}
 .row:first-child{border-top:0}
-.row-ic{width:40px;height:40px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:none}
+.row-ic{width:40px;height:40px;border-radius:12px;background:rgba(212,168,75,.12);color:var(--acc);display:grid;place-items:center;flex:none}
 .row-ic svg{width:26px;height:26px}
 .row-b{flex:1;min-width:0}
 .row-b b{display:block;font-size:17px}
@@ -184,6 +184,28 @@ textarea.copy{width:100%;height:220px;background:var(--sheet);border:0;border-ra
 #toast{position:fixed;left:50%;bottom:calc(94px + env(safe-area-inset-bottom));transform:translate(-50%,12px);background:var(--acc);color:var(--on-acc);font-weight:700;padding:11px 18px;border-radius:999px;opacity:0;transition:.2s;pointer-events:none;z-index:20;font-size:15px;white-space:nowrap}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* home v3 */
+.date{color:var(--steel);font-size:15px;margin:-2px 0 18px}
+.prime{display:flex;align-items:center;gap:14px;width:100%;padding:16px 16px 16px 14px;border-radius:18px;background:linear-gradient(120deg,rgba(212,168,75,.20),rgba(212,168,75,.05) 70%);box-shadow:inset 0 0 0 1px rgba(212,168,75,.45);margin-bottom:8px}
+.prime .t{display:block;font-family:var(--disp);font-weight:900;font-size:27px;line-height:1}
+.prime small{display:block;color:var(--steel);font-size:14px;margin-top:3px}
+.prime .chev{color:var(--acc)}
+.gico{width:46px;height:46px;border-radius:13px;background:rgba(212,168,75,.14);color:var(--acc);display:grid;place-items:center;flex:none}
+.gico svg{width:26px;height:26px}
+.gico.solid{background:var(--acc);color:var(--on-acc)}
+.gico.sm{width:36px;height:36px;border-radius:10px}.gico.sm svg{width:21px;height:21px}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qk{background:var(--sheet);border:1px solid var(--line);border-radius:16px;padding:13px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.qk b{font-size:16px;line-height:1.2}
+.qk small{display:block;color:var(--steel);font-size:13px;font-weight:400;margin-top:2px}
+.qk:disabled{opacity:.4;cursor:default}
+.h2i{display:flex;align-items:center;gap:10px}
+.h2i .gico{width:30px;height:30px;border-radius:9px}.h2i .gico svg{width:18px;height:18px}
+.s-head{display:flex;align-items:center;gap:12px;margin:2px 0 6px}
+.s-head .tag{font-size:14px;font-weight:700;color:var(--acc)}
+.figs .fl{display:flex;align-items:center;gap:5px}
+.figs .fl svg{width:15px;height:15px;color:var(--acc)}
+
 /* timer */
 #timer{position:fixed;inset:0;z-index:30;background:var(--bg);display:none;flex-direction:column;padding:calc(14px + env(safe-area-inset-top)) 22px calc(22px + env(safe-area-inset-bottom));transition:background .3s}
 #timer.show{display:flex}
@@ -261,6 +283,14 @@ IC.pause='<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" wid
 IC.skip='<path d="M5 5l10 7-10 7z"/><path d="M19 5v14"/>';
 IC.close='<path d="M6 6l12 12M18 6 6 18"/>';
 IC.timer='<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/>';
+IC.pin='<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>';
+IC.target='<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>';
+IC.flame='<path d="M12 21c-3.6 0-6-2.5-6-5.8 0-3.5 3-5.2 3.5-8.7 2.2 1.3 3.2 3.2 3.2 5 .9-.7 1.5-1.7 1.6-3 2 1.6 3.7 4 3.7 6.7 0 3.3-2.4 5.8-6 5.8z"/>';
+IC.clock='<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>';
+IC.user='<circle cx="12" cy="8" r="3.8"/><path d="M4.5 20c.8-3.6 3.8-5.6 7.5-5.6s6.7 2 7.5 5.6"/>';
+IC.trash='<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>';
+IC.trophy='<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4.5a3 3 0 0 0 3.5 4M16 6h3.5a3 3 0 0 1-3.5 4M12 13v4M8.5 20h7l-.8-3h-5.4z"/>';
+IC.body='<circle cx="12" cy="4.5" r="2"/><path d="M7 9l5-1.5L17 9M12 7.5V14M12 14l-3 7M12 14l3 7"/>';
 IC.search='<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>';
 function svg(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(IC[k]||IC.bw)+'</svg>';}
 
@@ -894,7 +924,7 @@ function tDraw(){
 function tDrawDone(){
   TM.el.className="show";
   TM.el.innerHTML=`<div class="t-top"><span class="t-meta">${esc(TM.title)}</span><button class="iconbtn" data-t="close" aria-label="Close">${svg("close")}</button></div>
-  <div class="t-main"><div class="t-done">Done.</div><div class="t-sub" style="margin-top:8px">${esc(TM.ph.doneMsg||"Nice work.")}</div></div>
+  <div class="t-main"><span class="gico" style="width:72px;height:72px;border-radius:22px;margin-bottom:10px">${svg("trophy").replace("<svg",'<svg style="width:40px;height:40px"')}</span><div class="t-done">Done.</div><div class="t-sub" style="margin-top:8px">${esc(TM.ph.doneMsg||"Nice work.")}</div></div>
   <div class="t-ctrl"><button class="btn" style="max-width:320px" data-t="close">Back to the session</button></div>`;
   if(TM.onDone) TM.onDone();
 }
@@ -955,26 +985,32 @@ function vEquip(){
   ${home.has("db")?`<h2 class="h2">Heaviest dumbbell</h2><input type="number" id="e-dbmax" inputmode="decimal" value="${esc(q.dbMax||"")}" placeholder="kg, optional">`:""}
   <div class="dock"><div class="in"><button class="btn" data-a="saveEquip">Save my kit</button></div></div>`;
 }
+function quickWhere(t){ const homeOk=typeAvailable(t,"home"); if(t==="wt") return S.equip.gym?"gym":(homeOk?"home":null); return homeOk?"home":(S.equip.gym?"gym":null); }
 function vHome(){
   const p=S.profile, recent=S.saved.slice(0,3);
+  const today=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+  const q=[["wt","Weights",S.equip.gym?"Gym, 60 min":"Home, 45 min"],["kb","Kettlebells","Home, 30 min"],["cal","Calisthenics","Bodyweight, 30 min"],["skip","Skipping","Rope intervals, 20 min"]];
   return hdr(null,`<button class="iconbtn" data-a="go" data-v="settings" aria-label="Settings">${svg("gear")}</button>`) + `
-  <h1 class="display">${greet()}, ${esc(p.name||"kompis")}.</h1>
-  <p class="lede">What are we training today?</p>
-  <button class="hero" data-a="startWiz" data-v="auto">${barbell(["#3C4754","#3C4754","#3C4754","#3C4754"],true)}
-    <span class="hero-t">Build today's session</span><span class="hero-d">Pick where, what and how long. GymKompis does the rest.</span></button>
+  <h1 class="display md">${greet()}, ${esc(p.name||"kompis")}.</h1>
+  <p class="date">${today}</p>
+  <button class="prime" data-a="startWiz" data-v="auto"><span class="gico solid">${svg("bolt")}</span><span class="row-b"><span class="t">Build today's session</span><small>Pick where, what and how long</small></span><span class="chev">›</span></button>
+  <h2 class="h2">Quick start</h2>
+  <p class="small" style="margin:-4px 0 12px">One tap. GymKompis picks the goal and focus.</p>
+  <div class="quick">${q.map(([t,l,d])=>{const w=quickWhere(t); return `<button class="qk" data-a="quick" data-v="${t}" ${w?"":"disabled"}><span class="gico sm">${svg(TYPE_IC[t])}</span><span><b>${l}</b><small>${w?d:"Add the kit first"}</small></span></button>`;}).join("")}</div>
+  <h2 class="h2">Your sessions</h2>
   <div class="list">
     <button class="row" data-a="startWiz" data-v="manual"><span class="row-ic">${svg("list")}</span><span class="row-b"><b>Build it myself</b><small>Choose from ${EX.length} exercises</small></span><span class="chev">›</span></button>
     <button class="row" data-a="go" data-v="saved"><span class="row-ic">${svg("bookmark")}</span><span class="row-b"><b>Saved sessions</b><small>${S.saved.length} of 10 saved</small></span><span class="chev">›</span></button>
   </div>
-  ${recent.length?`<h2 class="h2">Recent</h2><div class="list">${recent.map((s,i)=>`<button class="row" data-a="openSaved" data-v="${i}">${plate(s.meta.goal,30)}<span class="row-b"><b>${esc(headOf(s).h)}</b><small>${esc(headOf(s).sub)}, ${s.mins} min</small></span><span class="chev">›</span></button>`).join("")}</div>`:""}`;
+  ${recent.length?`<h2 class="h2">Recent</h2><div class="list">${recent.map((s,i)=>`<button class="row" data-a="openSaved" data-v="${i}"><span class="row-ic">${svg(TYPE_IC[s.meta.type])}</span><span class="row-b"><b>${esc(headOf(s).h)}</b><small>${esc(headOf(s).sub)}, ${s.mins} min</small></span>${plate(s.meta.goal,26)}<span class="chev">›</span></button>`).join("")}</div>`:""}`;
 }
 function vSettings(){
   const p=S.profile, q=S.equip;
   return hdr(back("home","Home")) + `
   <h1 class="display">Settings</h1>
   <div class="list" style="margin-top:14px">
-    <button class="row" data-a="go" data-v="welcome"><span class="row-b"><b>Profile</b><small>${esc(p.name||"")}, ${esc(p.age||"–")} years, ${esc(p.weight||"–")} kg, fitness ${p.fit}/10</small></span><span class="chev">›</span></button>
-    <button class="row" data-a="editEquip"><span class="row-b"><b>Equipment</b><small>${q.gym?"Gym access. ":""}Home: ${(q.home||[]).length?q.home.map(eqName).join(", "):"bodyweight only"}${(q.kbs||[]).length?`. Bells: ${q.kbs.slice().sort((a,b)=>a-b).join(", ")} kg`:""}</small></span><span class="chev">›</span></button>
+    <button class="row" data-a="go" data-v="welcome"><span class="row-ic">${svg("user")}</span><span class="row-b"><b>Profile</b><small>${esc(p.name||"")}, ${esc(p.age||"–")} years, ${esc(p.weight||"–")} kg, fitness ${p.fit}/10</small></span><span class="chev">›</span></button>
+    <button class="row" data-a="editEquip"><span class="row-ic">${svg("kb")}</span><span class="row-b"><b>Equipment</b><small>${q.gym?"Gym access. ":""}Home: ${(q.home||[]).length?q.home.map(eqName).join(", "):"bodyweight only"}${(q.kbs||[]).length?`. Bells: ${q.kbs.slice().sort((a,b)=>a-b).join(", ")} kg`:""}</small></span><span class="chev">›</span></button>
   </div>
   <h2 class="h2">Your data</h2>
   <p class="small" style="margin-bottom:12px">Everything is stored on this phone only. ${Object.keys(S.logs).length} exercises have a saved weight.</p>
@@ -992,15 +1028,15 @@ function vWiz(){
   return hdr(back("home","Home")) + `
   <h1 class="display md">${auto?"Build today's session":"Build it myself"}</h1>
   <p class="lede">${auto?"Answer what you know. Anything left on “You pick” is on me.":"Set the basics, then choose your exercises."}</p>
-  <h2 class="h2">Where are you training?</h2>
+  <h2 class="h2 h2i"><span class="gico">${svg("pin")}</span>Where are you training?</h2>
   <div class="tiles">${tile("where","home","bw","Home")}${tile("where","gym","bench","Gym")}</div>
-  <h2 class="h2">What kind of session?</h2>
+  <h2 class="h2 h2i"><span class="gico">${svg("db")}</span>What kind of session?</h2>
   <div class="tiles">${Object.keys(TYPES).map(t=>{const dis=w.where&&!typeAvailable(t,w.where); return tile("type",t,TYPE_IC[t],TYPES[t],dis?"Not in your home kit":"",dis);}).join("")}</div>
-  <h2 class="h2">What's the goal?</h2>
+  <h2 class="h2 h2i"><span class="gico">${svg("target")}</span>What's the goal?</h2>
   <div class="opts">${goals.map(g=>`<button class="opt ${w.goal===g?"on":""}" data-a="wiz" data-k="goal" data-v="${g}">${plate(g,34)}<span class="ob"><b>${GOALS[g]}</b><small>${GOAL_D[g]}</small></span><span class="radio"></span></button>`).join("")}
     <button class="opt ${w.goal==="pick"?"on":""}" data-a="wiz" data-k="goal" data-v="pick"><span class="qmark" style="width:34px;height:34px">?</span><span class="ob"><b>Not sure, you pick</b><small>A balanced muscle-building session</small></span><span class="radio"></span></button></div>
-  ${auto&&w.type!=="skip"?`<h2 class="h2">What do you want to hit?</h2><div class="chips">${focusKeys.map(k=>`<button class="chip ${w.focus===k?"on":""}" data-a="wiz" data-k="focus" data-v="${k}">${FOCI[k]}</button>`).join("")}<button class="chip ${w.focus==="pick"?"on":""}" data-a="wiz" data-k="focus" data-v="pick">You pick</button></div>`:""}
-  ${auto?`<h2 class="h2">How long have you got?</h2><div class="chips">${[20,30,45,60,75,90].map(t=>`<button class="chip ${w.time===t?"on":""}" data-a="wiz" data-k="time" data-v="${t}">${t} min</button>`).join("")}<button class="chip ${w.time==="pick"?"on":""}" data-a="wiz" data-k="time" data-v="pick">You pick</button></div>`:""}
+  ${auto&&w.type!=="skip"?`<h2 class="h2 h2i"><span class="gico">${svg("body")}</span>What do you want to hit?</h2><div class="chips">${focusKeys.map(k=>`<button class="chip ${w.focus===k?"on":""}" data-a="wiz" data-k="focus" data-v="${k}">${FOCI[k]}</button>`).join("")}<button class="chip ${w.focus==="pick"?"on":""}" data-a="wiz" data-k="focus" data-v="pick">You pick</button></div>`:""}
+  ${auto?`<h2 class="h2 h2i"><span class="gico">${svg("clock")}</span>How long have you got?</h2><div class="chips">${[20,30,45,60,75,90].map(t=>`<button class="chip ${w.time===t?"on":""}" data-a="wiz" data-k="time" data-v="${t}">${t} min</button>`).join("")}<button class="chip ${w.time==="pick"?"on":""}" data-a="wiz" data-k="time" data-v="pick">You pick</button></div>`:""}
   ${w.where==="home"?`<p class="small" style="margin-top:18px">Missing something? <button class="small" style="text-decoration:underline" data-a="editEquip">Update your kit</button></p>`:""}
   <div class="dock"><div class="in"><div class="info"><b>${ready?"Ready":"Almost"}</b>${esc(summary)}</div><button class="btn" style="flex:none;padding:16px 22px" data-a="${auto?"build":"toLib"}" ${ready?"":"disabled"}>${auto?"Build session":"Choose exercises"}</button></div></div>`;
 }
@@ -1060,10 +1096,10 @@ function vSession(){
   const wa="https://wa.me/?text="+encodeURIComponent(shareText(s));
   const note0 = g => g==="strength"?"Big lift first. Pick weights you could lift for 2 more reps.":g==="endurance"?"Light weights, short rest.":"Pick weights where the last 2 reps are hard.";
   return hdr(back("home","Home"), m.mode==="auto"?`<button class="nav" data-a="rebuild">${svg("refresh")}New version</button>`:"") + `
-  ${barbell(items.map(()=>"#3C4754"),false,"s-bar")}
+  <div class="s-head"><span class="gico">${svg(TYPE_IC[m.type])}</span><span class="tag">${TYPES[m.type]}, ${m.where==="gym"?"gym":"home"}</span></div>
   <h1 class="display">${esc(hd.h)}</h1>
-  <p class="lede" style="margin-bottom:16px">${esc(hd.sub)}</p>
-  <div class="figs"><div><b>${s.mins}</b><span>minutes</span></div><div><b>${s.kcal}</b><span>kcal, rough</span></div><div><b>${nEx}</b><span>exercises</span></div></div>
+  <p class="lede" style="margin-bottom:16px">${GOALS[m.goal]} session${m.time?`, built for ${m.time} minutes`:""}</p>
+  <div class="figs"><div><b>${s.mins}</b><span class="fl">${svg("clock")}minutes</span></div><div><b>${s.kcal}</b><span class="fl">${svg("flame")}kcal, rough</span></div><div><b>${nEx}</b><span class="fl">${svg("list")}exercises</span></div></div>
   ${nEx===0?`<div class="warn">No exercises fit that combination with your kit. Pick another focus or add equipment.</div>`:""}
   <button class="fold ${ui.warm?"open":""}" data-a="fold" data-v="warm" aria-expanded="${!!ui.warm}"><span>Warm-up, 5 min</span><span class="chev">›</span></button>
   ${ui.warm?`<ul class="foldbody">${WARMUP[m.type].map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
@@ -1092,7 +1128,7 @@ function vSaved(){
   return hdr(back("home","Home")) + `
   <h1 class="display">Saved</h1>
   <p class="lede">${S.saved.length} of 10 sessions.</p>
-  ${S.saved.length?`<div class="list">${S.saved.map((s,i)=>`<div class="row">${plate(s.meta.goal,30)}
+  ${S.saved.length?`<div class="list">${S.saved.map((s,i)=>`<div class="row"><span class="row-ic">${svg(TYPE_IC[s.meta.type])}</span>
     <button class="row-b" data-a="openSaved" data-v="${i}"><b>${esc(headOf(s).h)}</b><small>${esc(headOf(s).sub)}, ${s.mins} min, ${new Date(s.created).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</small></button>
     <button class="mini danger" data-a="delSaved" data-v="${i}" aria-label="Delete">Delete</button></div>`).join("")}</div>`
   :`<div class="empty">No saved sessions yet. Build one and tap the star to keep it.</div>`}`;
@@ -1130,6 +1166,12 @@ const A = {
     if(k==="where"&&w.type&&!typeAvailable(w.type,v)) w.type=null;
     if(k==="type"){ if(v==="skip"&&!["cond","endurance","pick"].includes(w.goal)) w.goal="pick"; if(v==="kb"&&!["full","upper","lower","core","pick"].includes(w.focus)) w.focus="pick"; }
     render(); },
+  quick(v){
+    const where=quickWhere(v); if(!where) return;
+    const time = v==="wt"?(where==="gym"?60:45):v==="skip"?20:30;
+    ui.wiz={mode:"auto",where,type:v,goal:"pick",focus:"pick",time};
+    ui.session=generate(ui.wiz); go("session");
+  },
   build(){ ui.session=generate(ui.wiz); go("session"); },
   rebuild(){ const m=ui.session.meta, w=ui.wiz||{};
     ui.session=generate({where:m.where,type:m.type,goal:w.goal==="pick"?"pick":m.goal,focus:w.focus==="pick"?"pick":m.focus,time:m.time});
