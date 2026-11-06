@@ -1,5 +1,5 @@
 // GymKompis: caches the app so it opens instantly and works offline in the gym. Other sites pass straight through.
-const CACHE = 'gymkompis-v8';
+const CACHE = 'gymkompis-v9';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
