@@ -1178,7 +1178,7 @@ function vWiz(){
 }
 function vLib(){
   const L=ui.lib, d=L.draft, c=ctxFor(d.where);
-  const all=pool(d.type,c).filter(e=>e.pattern!=="mob"||d.type==="kb");
+  const all=pool(d.type,c).filter(e=>(e.pattern!=="mob"||d.type==="kb")&&!(d.where==="gym"&&e.equip.includes("band")));
   const groups=Object.keys(GROUPS).filter(g=>all.some(e=>e.group===g));
   if(!groups.includes(L.tab)) L.tab=groups[0];
   const q=(L.q||"").trim().toLowerCase();
@@ -1331,7 +1331,7 @@ const A = {
   toggleSel(v){ const s=ui.lib.sel, i=s.indexOf(v); i>=0?s.splice(i,1):s.push(v); render(); },
   pickFor(){
     const L=ui.lib, c=ctxFor(L.draft.where), ml=maxLevel();
-    let opts=pool(L.draft.type,c).filter(e=>e.group===L.tab&&!L.sel.includes(e.id)&&e.pattern!=="mob");
+    let opts=pool(L.draft.type,c).filter(e=>e.group===L.tab&&!L.sel.includes(e.id)&&e.pattern!=="mob"&&!(L.draft.where==="gym"&&e.equip.includes("band")));
     const easy=opts.filter(e=>e.level<=ml); if(easy.length>=2) opts=easy;
     const comp=opts.filter(e=>BIG.has(e.id)||COMPOUND.has(e.pattern)); let n=0;
     for(;n<2&&opts.length;n++){ const src=(n===0&&comp.length)?comp:opts; const e=rnd(src); L.sel.push(e.id); opts=opts.filter(x=>x.id!==e.id); const ci=comp.indexOf(e); if(ci>=0) comp.splice(ci,1); }
