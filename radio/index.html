@@ -834,18 +834,19 @@ async function playHLS(ch, idx=0){
   const guard = setTimeout(()=>{ if (tvVideo && tvVideo.readyState<2) next(); }, 15000);
   tvVideo.addEventListener("playing", ()=>clearTimeout(guard), {once:true});
   try{
-    if (tvVideo.canPlayType("application/vnd.apple.mpegurl")){
-      tvVideo.src = url;
-      tvVideo.addEventListener("error", next, {once:true});
-    } else {
-      await loadHlsJs();
-      if (!window.Hls || !Hls.isSupported()) throw new Error("no hls.js");
-      if (tvCurrent!==ch) return;
+    // hls.js wherever the browser supports it (most reliable); Safari's built-in player otherwise
+    await loadHlsJs().catch(()=>{});
+    if (tvCurrent!==ch) return;
+    if (window.Hls && Hls.isSupported()){
       tvHls = new Hls();
       tvHls.on(Hls.Events.ERROR, (e,d)=>{ if (d.fatal) next(); });
       tvHls.loadSource(url); tvHls.attachMedia(tvVideo);
-    }
-    try{ await tvVideo.play(); }catch(e){ /* autoplay blocked: one tap on the video starts it */ }
+    } else if (tvVideo.canPlayType("application/vnd.apple.mpegurl")){
+      tvVideo.src = url;
+      tvVideo.addEventListener("error", next, {once:true});
+    } else throw new Error("no hls");
+    try{ await tvVideo.play(); }
+    catch(e){ if (e && e.name==="NotAllowedError"){ clearTimeout(guard); } } // autoplay blocked: one tap on the video starts it
   }catch(e){ next(); }
 }
 /* Quietly check the direct-stream channels once per visit and hide any that are off air */
