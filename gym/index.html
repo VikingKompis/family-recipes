@@ -206,6 +206,19 @@ textarea.copy{width:100%;height:220px;background:var(--sheet);border:0;border-ra
 .figs .fl{display:flex;align-items:center;gap:5px}
 .figs .fl svg{width:15px;height:15px;color:var(--acc)}
 
+/* quick sheet */
+.scrim{position:fixed;inset:0;background:rgba(8,10,13,.6);z-index:25;animation:fade .2s both}
+.qsheet{position:fixed;left:0;right:0;bottom:0;z-index:26;background:var(--sheet);border-radius:22px 22px 0 0;border-top:1px solid var(--line);padding:10px 18px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;animation:up .25s cubic-bezier(.2,.9,.25,1) both}
+.qsheet .in{max-width:524px;margin:0 auto}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.qsheet .h2{margin:22px 0 10px}
+.qsheet .opts{background:var(--bg)}
+.qsheet .chip{background:var(--soft)}
+.qsheet .chip.on{background:var(--acc)}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.qsheet,.scrim{animation:none}}
+
 /* timer */
 #timer{position:fixed;inset:0;z-index:30;background:var(--bg);display:none;flex-direction:column;padding:calc(14px + env(safe-area-inset-top)) 22px calc(22px + env(safe-area-inset-bottom));transition:background .3s}
 #timer.show{display:flex}
@@ -565,7 +578,8 @@ const rnd = a => a[Math.floor(Math.random()*a.length)];
 function fmtW(w){ return w>=60&&w%60===0 ? (w/60)+" min" : w+" s"; }
 function fmtRest(s){ if(!s) return ""; return s>=60 ? Math.floor(s/60)+":"+String(s%60).padStart(2,"0") : s+" s"; }
 function fit(){ return +(S.profile&&S.profile.fit)||5; }
-function maxLevel(){ const f=fit(); return f<=3?1:f<=7?2:3; }
+let EFFORT=null;
+function maxLevel(){ const f=fit(); const m=f<=3?1:f<=7?2:3; return EFFORT==="easy"?1:m; }
 function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),1800); }
 function ytUrl(e){ return "https://www.youtube.com/results?search_query="+encodeURIComponent(e.name+(e.type==="kb"?" kettlebell":"")+" exercise form tutorial"); }
 function exIcon(e){
@@ -625,6 +639,7 @@ function params(e,goal,role){
   if(goal==="strength"){ if(role==="p"){sets=f>=8?5:f<=3?3:4;reps="4–6";rest=150;work=30;} else {sets=3;reps="8–10";rest=90;work=40;} }
   else if(goal==="muscle"){ if(role==="p"){sets=f<=3?3:4;reps="6–8";rest=120;work=40;} else {sets=f<=3?2:3;reps="8–12";rest=60;work=45;} }
   else { sets=f<=3?2:3; reps="15–20"; rest=45; work=50; }
+  if(e.type==="cal"&&goal==="strength"){ rest = role==="p"?120:75; }
   if(e.type==="cal"){ reps = goal==="strength"?(role==="p"?"5–8":"8–12"):goal==="muscle"?"8–15":"15–25"; }
   if(SWINGY.test(e.id)) reps = goal==="strength"?"10":goal==="muscle"?"12–15":"20";
   if(e.pattern==="core"&&e.unit==="r"&&goal!=="endurance"&&!e.id.startsWith("kb-tgu")) reps="10–15";
@@ -633,6 +648,7 @@ function params(e,goal,role){
   if(e.id==="bw-muscleup"||e.id==="bw-hspu") reps="3–5";
   if(e.unit==="s"){ reps = goal==="endurance"?"45–60 s":"30–45 s"; work=45; }
   if(e.unit==="m"){ reps = goal==="endurance"?"60 m":"30–40 m"; work=40; }
+  if(EFFORT==="easy"){ sets=Math.max(2,sets-1); }
   if(isUni(e)&&e.unit!=="m"){ reps+=" /side"; work=Math.round(work*1.8); }
   return {sets,reps,rest,work};
 }
@@ -668,6 +684,7 @@ function buildStraight(cands,slots,goal,budget){
 }
 function circuitTiming(type,goal){
   const f=fit();
+  if(EFFORT==="easy") return type==="skip"?[60,45]:[30,30];
   if(type==="skip" && goal==="endurance") return f<=3?[60,30]:f<=7?[120,30]:[180,30];
   if(goal==="endurance") return f<=3?[40,20]:[50,10];
   return f<=3?[30,30]:f<=7?[40,20]:[45,15];
@@ -677,7 +694,7 @@ function buildCircuits(cands,slots,goal,budget,type){
   const nC = type==="skip"?1:(budget>=40?2:1);
   const per=budget/nC, used=new Set(), blocks=[];
   for(let c=0;c<nC;c++){
-    let N = type==="skip"?Math.min(6,Math.max(3,Math.round(per/6))):(per<=18?4:per<=28?5:6);
+    let N = type==="skip"?Math.min(6,Math.max(2,Math.floor(per/((work+rest)/60)/2)||2)):(per<=18?4:per<=28?5:6);
     const items=[]; let i=c, miss=0;
     while(items.length<N && miss<slots.length+2){
       const e=pickEx(cands,slots[i%slots.length],used,"cond",false,true,ctxWhere); i++;
@@ -686,13 +703,13 @@ function buildCircuits(cands,slots,goal,budget,type){
     }
     if(!items.length) continue;
     const roundMin=items.length*(work+rest)/60;
-    const rounds=Math.max(2,Math.floor((per+1)/(roundMin+1)));
+    const rounds=type==="skip"?Math.max(1,Math.round((per+1)/(roundMin+1))):Math.max(2,Math.floor((per+1)/(roundMin+1)));
     blocks.push({kind:"circuit",title:nC>1?"Circuit "+"AB"[c]:(type==="skip"?"Rope intervals":"Circuit"),rounds,work,rest,items});
   }
   return blocks;
 }
 function generate(w){
-  const c=ctxFor(w.where), type=w.type; ctxWhere=w.where;
+  const c=ctxFor(w.where), type=w.type; ctxWhere=w.where; EFFORT=w.effort||null;
   let goal=w.goal, focus=w.focus, time=w.time;
   if(goal==="pick") goal = type==="skip"?"cond":"muscle";
   if(type==="skip"&&!["cond","endurance"].includes(goal)) goal="cond";
@@ -703,7 +720,7 @@ function generate(w){
   }
   if(type==="kb"&&!KB_SLOTS[focus]) focus = ["chest","shoulders","arms","push","pull"].includes(focus)?"upper":focus==="legs"?"lower":focus==="back"?"upper":"full";
   if(time==="pick"||!time) time=45;
-  const budget=Math.max(10,time-8);
+  const ovh=time<=20?4:8, budget=Math.max(5,time-ovh);
   const ml=maxLevel();
   let all=pool(type,c), cands=all.filter(e=>e.level<=ml);
   if(cands.length<4) cands=all;
@@ -716,7 +733,7 @@ function generate(w){
     const slots = type==="kb"?KB_SLOTS[focus]:SLOTS[focus];
     blocks=buildStraight(cands,slots,goal,budget);
   }
-  return finalize({meta:{where:w.where,type,goal,focus,time,mode:"auto"},blocks});
+  const out=finalize({meta:{where:w.where,type,goal,focus,time,mode:"auto",effort:w.effort||null,ovh},blocks}); EFFORT=null; return out;
 }
 function buildManual(d,ids){
   const goal = d.goal==="pick" ? (d.type==="skip"?"cond":"muscle") : d.goal;
@@ -744,13 +761,13 @@ function finalize(s){
 }
 function recalc(s){
   const active=s.blocks.reduce((a,b)=>a+blockMins(b),0);
-  s.mins=Math.round(active+8);
+  const ovh=s.meta.ovh||8; s.mins=Math.round(active+ovh);
   const w=+(S.profile&&S.profile.weight)||80;
   const m=s.meta, mt=(MET[m.type]||MET.wt)[m.goal]||5;
   let met=mt;
   if(m.type==="skip"){ const b=s.blocks[0]; if(b){ const frac=b.work/(b.work+b.rest); met=mt*frac+3*(1-frac);} }
   else if(m.goal!=="cond"){ /* straight sets: MET already reflects rest-inclusive lifting */ }
-  const kcal=(met*w*active + 3.5*w*5 + 2.5*w*3)/60;
+  const kcal=(met*w*active + 3.2*w*ovh)/60;
   s.kcal=Math.round(kcal/10)*10;
 }
 function headOf(s){
@@ -986,6 +1003,23 @@ function vEquip(){
   <div class="dock"><div class="in"><button class="btn" data-a="saveEquip">Save my kit</button></div></div>`;
 }
 function quickWhere(t){ const homeOk=typeAvailable(t,"home"); if(t==="wt") return S.equip.gym?"gym":(homeOk?"home":null); return homeOk?"home":(S.equip.gym?"gym":null); }
+const QTIMES={wt:[30,45,60,75],kb:[20,30,45],cal:[20,30,45],skip:[10,15,20,30]};
+const EFFORTS=[["easy","Easy","Tick over. Lighter, fewer sets, simple moves","body"],["steady","Steady","A solid session. Moderate effort, 8–12 reps","target"],["hard","Hard","Push it. Hardest moves first, low reps, long rest","bolt"],["burn","Burn","Sweat and calories. Timed circuits, short rest","flame"]];
+function effortGoal(type,eff){ if(type==="skip") return eff==="hard"||eff==="burn"?"cond":"endurance"; return {easy:"endurance",steady:"muscle",hard:"strength",burn:"cond"}[eff]; }
+function quickSheet(){
+  const q=ui.quick, w=quickWhere(q.type);
+  return `<div class="scrim" data-a="quickClose"></div>
+  <div class="qsheet" role="dialog" aria-modal="true" aria-label="${TYPES[q.type]} session"><div class="in">
+    <div class="grab"></div>
+    <div class="s-head"><span class="gico">${svg(TYPE_IC[q.type])}</span><span class="tag">${TYPES[q.type]}, ${w==="gym"?"gym":"home"}</span></div>
+    <h2 class="display md" style="margin:4px 0 0">Quick ${TYPES[q.type].toLowerCase()}</h2>
+    <h2 class="h2 h2i"><span class="gico">${svg("clock")}</span>How long have you got?</h2>
+    <div class="chips">${QTIMES[q.type].map(t=>`<button class="chip ${q.time===t?"on":""}" data-a="quickSet" data-k="time" data-v="${t}">${t} min</button>`).join("")}</div>
+    <h2 class="h2 h2i"><span class="gico">${svg("flame")}</span>How hard?</h2>
+    <div class="opts">${EFFORTS.map(([k,l,d,ic])=>`<button class="opt ${q.effort===k?"on":""}" data-a="quickSet" data-k="effort" data-v="${k}"><span class="gico sm">${svg(ic)}</span><span class="ob"><b>${l}</b><small>${d}</small></span><span class="radio"></span></button>`).join("")}</div>
+    <button class="btn" style="margin-top:20px" data-a="quickGo">Build my session</button>
+  </div></div>`;
+}
 function vHome(){
   const p=S.profile, recent=S.saved.slice(0,3);
   const today=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
@@ -1002,6 +1036,7 @@ function vHome(){
     <button class="row" data-a="startWiz" data-v="manual"><span class="row-ic">${svg("list")}</span><span class="row-b"><b>Build it myself</b><small>Choose from ${EX.length} exercises</small></span><span class="chev">›</span></button>
     <button class="row" data-a="go" data-v="saved"><span class="row-ic">${svg("bookmark")}</span><span class="row-b"><b>Saved sessions</b><small>${S.saved.length} of 10 saved</small></span><span class="chev">›</span></button>
   </div>
+  ${ui.quick?quickSheet():""}
   ${recent.length?`<h2 class="h2">Recent</h2><div class="list">${recent.map((s,i)=>`<button class="row" data-a="openSaved" data-v="${i}"><span class="row-ic">${svg(TYPE_IC[s.meta.type])}</span><span class="row-b"><b>${esc(headOf(s).h)}</b><small>${esc(headOf(s).sub)}, ${s.mins} min</small></span>${plate(s.meta.goal,26)}<span class="chev">›</span></button>`).join("")}</div>`:""}`;
 }
 function vSettings(){
@@ -1098,10 +1133,10 @@ function vSession(){
   return hdr(back("home","Home"), m.mode==="auto"?`<button class="nav" data-a="rebuild">${svg("refresh")}New version</button>`:"") + `
   <div class="s-head"><span class="gico">${svg(TYPE_IC[m.type])}</span><span class="tag">${TYPES[m.type]}, ${m.where==="gym"?"gym":"home"}</span></div>
   <h1 class="display">${esc(hd.h)}</h1>
-  <p class="lede" style="margin-bottom:16px">${GOALS[m.goal]} session${m.time?`, built for ${m.time} minutes`:""}</p>
+  <p class="lede" style="margin-bottom:16px">${m.effort==="easy"?"Easy tick-over":GOALS[m.goal]} session${m.time?`, built for ${m.time} minutes`:""}</p>
   <div class="figs"><div><b>${s.mins}</b><span class="fl">${svg("clock")}minutes</span></div><div><b>${s.kcal}</b><span class="fl">${svg("flame")}kcal, rough</span></div><div><b>${nEx}</b><span class="fl">${svg("list")}exercises</span></div></div>
   ${nEx===0?`<div class="warn">No exercises fit that combination with your kit. Pick another focus or add equipment.</div>`:""}
-  <button class="fold ${ui.warm?"open":""}" data-a="fold" data-v="warm" aria-expanded="${!!ui.warm}"><span>Warm-up, 5 min</span><span class="chev">›</span></button>
+  <button class="fold ${ui.warm?"open":""}" data-a="fold" data-v="warm" aria-expanded="${!!ui.warm}"><span>Warm-up, ${(m.ovh||8)<8?3:5} min</span><span class="chev">›</span></button>
   ${ui.warm?`<ul class="foldbody">${WARMUP[m.type].map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
   ${s.blocks.map((b,bi)=>`<section class="sheet">
     <div class="sheet-h"><h2>${esc(b.title)}</h2>${b.kind==="circuit"?`<p><span class="rounds">${b.rounds} rounds</span><br>${fmtW(b.work)} on, ${fmtW(b.rest)} off</p>`:`<p>${note0(m.goal)}</p>`}</div>
@@ -1110,7 +1145,7 @@ function vSession(){
     ${b.items.map((it,ii)=>vItem(s,b,bi,it,ii)).join("")}
     ${b.kind==="circuit"?`<p class="small" style="padding:0 18px 14px">Rest 1 min between rounds.</p>`:""}
   </section>`).join("")}
-  <button class="fold ${ui.cool?"open":""}" data-a="fold" data-v="cool" aria-expanded="${!!ui.cool}"><span>Cool-down, 3 min</span><span class="chev">›</span></button>
+  <button class="fold ${ui.cool?"open":""}" data-a="fold" data-v="cool" aria-expanded="${!!ui.cool}"><span>Cool-down, ${(m.ovh||8)<8?1:3} min</span><span class="chev">›</span></button>
   ${ui.cool?`<ul class="foldbody">${COOL.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
   ${hasLoaded?`<button class="btn ghost" style="margin-top:6px" data-a="logWeights">Save today's weights</button>`:""}
   ${ui.shareFallback?`<a class="btn ghost" style="margin-top:10px" href="${wa}" target="_blank" rel="noopener">Open WhatsApp</a>`:""}
@@ -1167,14 +1202,19 @@ const A = {
     if(k==="type"){ if(v==="skip"&&!["cond","endurance","pick"].includes(w.goal)) w.goal="pick"; if(v==="kb"&&!["full","upper","lower","core","pick"].includes(w.focus)) w.focus="pick"; }
     render(); },
   quick(v){
-    const where=quickWhere(v); if(!where) return;
-    const time = v==="wt"?(where==="gym"?60:45):v==="skip"?20:30;
-    ui.wiz={mode:"auto",where,type:v,goal:"pick",focus:"pick",time};
-    ui.session=generate(ui.wiz); go("session");
+    if(!quickWhere(v)) return;
+    const t=QTIMES[v]; ui.quick={type:v,time:v==="wt"&&S.equip.gym?60:t[Math.min(1,t.length-1)],effort:"steady"}; render();
+  },
+  quickSet(v,t){ const k=t.dataset.k; ui.quick[k]=k==="time"?+v:v; render(); },
+  quickClose(){ ui.quick=null; render(); },
+  quickGo(){
+    const q=ui.quick, where=quickWhere(q.type);
+    ui.wiz={mode:"auto",where,type:q.type,goal:effortGoal(q.type,q.effort),focus:"pick",time:q.time,effort:q.effort==="easy"?"easy":null};
+    ui.quick=null; ui.session=generate(ui.wiz); go("session");
   },
   build(){ ui.session=generate(ui.wiz); go("session"); },
   rebuild(){ const m=ui.session.meta, w=ui.wiz||{};
-    ui.session=generate({where:m.where,type:m.type,goal:w.goal==="pick"?"pick":m.goal,focus:w.focus==="pick"?"pick":m.focus,time:m.time});
+    ui.session=generate({where:m.where,type:m.type,goal:w.goal==="pick"?"pick":m.goal,focus:w.focus==="pick"?"pick":m.focus,time:m.time,effort:m.effort});
     ui.open=null; ui.edit=false; render(); toast("New version built"); },
   toLib(){ ui.lib={draft:Object.assign({},ui.wiz),sel:[],tab:null,open:null,q:""}; go("lib"); },
   tab(v){ ui.lib.tab=v; ui.lib.open=null; render(); },
@@ -1252,7 +1292,7 @@ document.addEventListener("click",ev=>{
   const f=A[t.dataset.a]; if(!f) return;
   const r=f(t.dataset.v,t,ev); if(r!==true) ev.preventDefault();
 });
-document.addEventListener("keydown",ev=>{ if((ev.key==="Enter"||ev.key===" ")&&ev.target.matches('[role=button][data-a]')){ ev.preventDefault(); ev.target.click(); } });
+document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&ui.quick){ ui.quick=null; render(); return; } if((ev.key==="Enter"||ev.key===" ")&&ev.target.matches('[role=button][data-a]')){ ev.preventDefault(); ev.target.click(); } });
 document.addEventListener("input",ev=>{
   const t=ev.target, k=t.dataset&&t.dataset.i; if(!k) return;
   if(k==="fit"){ document.getElementById("fitv").textContent=t.value; document.getElementById("fitd").textContent=fitWord(+t.value); return; }
