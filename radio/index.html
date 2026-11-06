@@ -178,7 +178,7 @@
       </button>
       <button class="big tv" data-go="tv">
         <div class="ic">📺</div><div class="nm">TV</div>
-        <div class="sub">Live news, SVT and Nyheter på lätt svenska</div>
+        <div class="sub">News, sport, films, food, SVT and British TV</div>
       </button>
     </div>
   </section>
@@ -191,7 +191,7 @@
 
   <section class="view" id="tvView">
     <div class="sticky">
-      <div class="screen" id="screen"><div class="ph"><div><b>Pick a channel</b>Live news plays right here. Rotate your phone or use the player's full-screen button.</div></div></div>
+      <div class="screen" id="screen"><div class="ph"><div><b>Pick a channel</b>It plays right here. Rotate your phone or use the player's full-screen button.</div></div></div>
       <div class="tvbar">
         <div class="badge" id="tvBadge" style="background:linear-gradient(135deg,#2a2160,#1d1646)">TV</div>
         <div class="np"><div class="t" id="tvTitle">Nothing on</div><div class="s" id="tvSub">Tap a channel below</div></div>
@@ -199,7 +199,7 @@
       </div>
     </div>
     <main id="tvGroups"></main>
-    <div class="foot">News channels stream from their official YouTube live feeds. SVT works inside Sweden. Tap ＋ to add any YouTube channel.</div>
+    <div class="foot">Most channels stream directly; Sky, Al Jazeera, ABC and Bloomberg come via YouTube. SVT works inside Sweden. Channels that are off air hide themselves. Tap ＋ to add any YouTube channel.</div>
   </section>
 </div>
 
@@ -614,11 +614,12 @@ function go(v, push){
   document.body.classList.remove("view-home","view-radio","view-tv");
   document.body.classList.add("view-"+view);
   $("#tagline").textContent = view==="radio" ? "Jo'burg · Cape Town · London · Stockholm · Auckland. Tap a station to tune in"
-    : view==="tv" ? "Live news from Sweden, the UK, the world and home"
+    : view==="tv" ? "Live news, sport, films, food and British TV"
     : "Radio and TV from home, and from everywhere you've lived";
   const want = view==="home" ? location.pathname+location.search : "#"+view;
   if (push!==false && (location.hash||"") !== (view==="home"?"":"#"+view)) history.pushState(null,"",want);
   if (view==="home") updateHomeNow();
+  if (view==="tv") checkTvChannels();
   window.scrollTo(0,0);
 }
 function updateHomeNow(){
@@ -637,10 +638,13 @@ $("#backBtn").onclick = ()=>go("home");
    open: link to the official app/page                                    */
 const TV_GROUPS = [
   { id:"se", name:"Sverige", flag:"🇸🇪", note:"SVT is free public service TV. It plays here when you're in Sweden; if it won't, the button opens SVT Play." },
-  { id:"uk", name:"United Kingdom", flag:"🇬🇧", note:"BBC One, Two, Three and Four only stream inside the UK, so the BBC here is the latest BBC News reports." },
+  { id:"uk", name:"United Kingdom", flag:"🇬🇧", note:"BBC One, Two, Three and Four only stream inside the UK. The BBC and ITV channels here are their free 24/7 channels." },
+  { id:"sport", name:"Sport", flag:"🏆" },
+  { id:"movies", name:"Movies & series", flag:"🎬", note:"Free channels with ads. Expect older films and classics rather than new releases." },
+  { id:"food", name:"Food", flag:"🍳" },
+  { id:"za", name:"South Africa", flag:"🇿🇦" },
   { id:"world", name:"World news", flag:"🌍" },
   { id:"us", name:"United States", flag:"🇺🇸" },
-  { id:"za", name:"South Africa", flag:"🇿🇦" },
 ];
 const TV_BUILTIN = [
   { id:"svt1", group:"se", name:"SVT1", sub:"Live · Rapport, drama, sport", mono:"SVT1", c:["#0a6b4f","#1fbf8f"], svt:"ch-svt1", open:"https://www.svtplay.se/kanaler/svt1" },
@@ -654,28 +658,76 @@ const TV_BUILTIN = [
   { id:"bbc", group:"uk", name:"BBC News", sub:"Latest reports (not a live channel)", mono:"BBC", c:["#111","#555"], ytList:"UU16niRr50-MSBwiO3YDb3RA", open:"https://www.youtube.com/@BBCNews/videos" },
 
   { id:"aje", group:"world", name:"Al Jazeera English", sub:"Live 24/7 · Doha", mono:"AJE", c:["#c48a00","#ffc93c"], yt:"UCNye-wNBqNL5ZzHSJj3l8Bg", open:"https://www.youtube.com/@aljazeeraenglish/live" },
-  { id:"f24", group:"world", name:"France 24 English", sub:"Live 24/7 · Paris", mono:"F24", c:["#0057b8","#3db8ff"], yt:"UCQfwfsi5VrQ8yKZ-UWmAEFg", open:"https://www.youtube.com/@FRANCE24English/live" },
-  { id:"euronews", group:"world", name:"Euronews", sub:"Live · Brussels & Lyon", mono:"EN", c:["#1a237e","#5c6bc0"], yt:"UCSrZ3UV4jOidv8ppoVuvW9Q", open:"https://www.youtube.com/@euronews/live" },
-  { id:"dw", group:"world", name:"DW News", sub:"Live 24/7 · Berlin", mono:"DW", c:["#05264d","#1c6ed6"], yt:"UCknLrEdhRCp1aegoMqRaCZg", open:"https://www.youtube.com/@dwnews/live" },
+  { id:"f24", group:"world", name:"France 24 English", sub:"Live 24/7 · Paris", mono:"F24", c:["#0057b8","#3db8ff"], hls:["https://live.france24.com/hls/live/2037218/F24_EN_HI_HLS/master_5000.m3u8","https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_5000.m3u8"] },
+  { id:"euronews", group:"world", name:"Euronews", sub:"Live · Brussels & Lyon", mono:"EN", c:["#1a237e","#5c6bc0"], hls:["https://cdn-euronews.akamaized.net/live/eds/euronews-en/25002/index.m3u8"] },
+  { id:"dw", group:"world", name:"DW News", sub:"Live 24/7 · Berlin", mono:"DW", c:["#05264d","#1c6ed6"], hls:["https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/master.m3u8"] },
+  { id:"nhk", group:"world", name:"NHK World", sub:"Live 24/7 · Tokyo", mono:"NHK", c:["#b0002a","#ff4d6d"], hls:["https://media-tyo.hls.nhkworld.jp/hls/w/live/master.m3u8","https://media-osa.hls.nhkworld.jp/hls/w/live/master.m3u8"] },
+  { id:"cna", group:"world", name:"CNA", sub:"Live 24/7 · Singapore", mono:"CNA", c:["#a4000f","#e8384f"], hls:["https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index.m3u8"] },
+  { id:"trt", group:"world", name:"TRT World", sub:"Live 24/7 · Istanbul", mono:"TRT", c:["#0a3d62","#3c8ce7"], hls:["https://tv-trtworld.medya.trt.com.tr/master.m3u8"] },
+  { id:"africanews", group:"world", name:"Africanews", sub:"Live 24/7 · Pan-African news", mono:"AFN", c:["#e65100","#ffb547"], hls:["https://cdn-euronews.akamaized.net/live/eds/africanews-en/25049/index.m3u8"] },
   { id:"bloomberg", group:"world", name:"Bloomberg TV", sub:"Live · Markets & business", mono:"BBG", c:["#2b2b2b","#7a5cff"], yt:"UCIALMKvObZNtJ6AmdCLP7Lg", open:"https://www.youtube.com/@markets/live" },
 
   { id:"abc", group:"us", name:"ABC News Live", sub:"Live 24/7 · New York", mono:"ABC", c:["#111","#3d3d3d"], yt:"UCBi2mrWuNuyYy4gbM6fW1jA", open:"https://www.youtube.com/@ABCNews/live" },
-  { id:"nbc", group:"us", name:"NBC News NOW", sub:"Live · New York", mono:"NBC", c:["#6a1b9a","#f7a21b"], yt:"UCeY0bbntWzzVIaj2z3QigXg", open:"https://www.youtube.com/@NBCNews/live" },
-  { id:"cbs", group:"us", name:"CBS News 24/7", sub:"Live 24/7 · New York", mono:"CBS", c:["#0b3d91","#4f83e3"], yt:"UC8p1vwvWtl6T73JiExfWs1g", open:"https://www.youtube.com/@CBSNews/live" },
+  { id:"nbc", group:"us", name:"NBC News NOW", sub:"Live · New York", mono:"NBC", c:["#6a1b9a","#f7a21b"], hls:["https://d1si3n1st4nkgb.cloudfront.net/10502/88896001/hls/master.m3u8?ads.xumo_channelId=88896001"], yt:"UCeY0bbntWzzVIaj2z3QigXg" },
+  { id:"cbs", group:"us", name:"CBS News 24/7", sub:"Live 24/7 · New York", mono:"CBS", c:["#0b3d91","#4f83e3"], hls:["https://cbsn-us-vtt.cbsnstream.cbsnews.com/out/v1/ef868690d34144509eda696884bf1619/master.m3u8"], yt:"UC8p1vwvWtl6T73JiExfWs1g" },
+  { id:"scripps", group:"us", name:"Scripps News", sub:"Live · Washington", mono:"SN", c:["#004b87","#29a8e0"], hls:["https://content.uplynk.com/channel/4bb4901b934c4e029fd4c1abfc766c37.m3u8"] },
+  { id:"dateline", group:"us", name:"Dateline 24/7", sub:"NBC true-crime investigations", mono:"DL", c:["#3a1c71","#d76d77"], hls:["https://d1si3n1st4nkgb.cloudfront.net/10502/88896029/hls/master.m3u8?ads.xumo_channelId=88896029"] },
 
-  { id:"sabc", group:"za", name:"SABC News", sub:"Live · Johannesburg", mono:"SABC", c:["#00703c","#f2b705"], yt:"UC8yH-uI81UUtEMDsowQyx1g", open:"https://www.youtube.com/@SABCNews/live" },
+  { id:"sabc", group:"za", name:"SABC News", sub:"Live · Johannesburg", mono:"SABC", c:["#00703c","#f2b705"], hls:["https://sabconetanw.cdn.mangomolo.com/news/smil:news.stream.smil/master.m3u8"], yt:"UC8yH-uI81UUtEMDsowQyx1g" },
+  { id:"wildearth", group:"za", name:"WildEarth", sub:"Live safari drives from the bush", mono:"WE", c:["#5d4037","#c8a165"], hls:["https://dqga3jatxofgx.cloudfront.net/WildEarth.m3u8"] },
+
+  { id:"expressen", group:"se", name:"Expressen TV", sub:"Nyheter, sport & nöje", mono:"EXP", c:["#c8102e","#ff5a5f"], hls:["https://cdn0-03837-liveedge0.dna.ip-only.net/03837-liveedge0/smil:03837-tx2/playlist.m3u8"] },
+  { id:"ditv", group:"se", name:"Di TV", sub:"Dagens industri · Börs & affärer", mono:"Di", c:["#c4a265","#f0d9a8"], hls:["https://cdn0-03837-liveedge0.dna.ip-only.net/03837-liveedge0/smil:03837-tx4/playlist.m3u8"] },
+
+  { id:"bbcearth", group:"uk", name:"BBC Earth", sub:"Nature & wildlife", mono:"BE", c:["#1b5e20","#66bb6a"], hls:["https://amg00793-amg00793c6-xumo-us-2669.playouts.now.amagi.tv/BBCStudios-BBCEarthA-hls/playlist.m3u8"] },
+  { id:"bbcdrama", group:"uk", name:"BBC Drama", sub:"British drama, 24/7", mono:"BD", c:["#4a148c","#9c27b0"], hls:["https://amg00793-amg00793c40-rakuten-es-5444.playouts.now.amagi.tv/playlist.m3u8"] },
+  { id:"norton", group:"uk", name:"The Graham Norton Show", sub:"Chat show classics", mono:"GN", c:["#e65100","#ff9800"], hls:["https://amg00654-itv-amg00654c35-rakuten-gb-7598.playouts.now.amagi.tv/playlist.m3u8"] },
+  { id:"midsomer", group:"uk", name:"Midsomer Murders", sub:"Village crime, back to back", mono:"MM", c:["#33691e","#8bc34a"], hls:["https://all3media-midsomer-1-us.roku.wurl.tv/playlist.m3u8"] },
+  { id:"antiques", group:"uk", name:"Antiques Roadshow", sub:"BBC treasures and valuations", mono:"AR", c:["#795548","#bcaaa4"], hls:["https://bbc-antiquesroadshowuk-1-us.roku.wurl.tv/playlist.m3u8"] },
+  { id:"hammer", group:"uk", name:"Homes Under the Hammer", sub:"Property auctions & makeovers", mono:"HH", c:["#00695c","#4db6ac"], hls:["https://all3media-homes-under-the-hammer-1-au.samsung.wurl.tv/playlist.m3u8"] },
+  { id:"drwho", group:"uk", name:"Doctor Who Classic", sub:"The original Doctors", mono:"DW", c:["#0d47a1","#42a5f5"], hls:["https://bbc-classicdrwho-1-us.roku.wurl.tv/playlist.m3u8"] },
+  { id:"mrbean", group:"uk", name:"Mr Bean", sub:"Live action, 24/7", mono:"MB", c:["#5d4037","#a1887f"], hls:["https://amg00627-amg00627c40-rakuten-uk-5725.playouts.now.amagi.tv/playlist/amg00627-banijayfast-mrbeanpopupcc-rakutenuk/playlist.m3u8"] },
+  { id:"historyhit", group:"uk", name:"History Hit", sub:"History documentaries", mono:"HH", c:["#3e2723","#d7a86e"], hls:["https://ldsaaaaaa-timeline-samsungau-awedz.amagi.tv/playlist/ldsAAAAAA-timeline-samsungau/playlist.m3u8"] },
+  { id:"talksport", group:"uk", name:"talkSPORT", sub:"Sports talk, on camera", mono:"TS", c:["#d50000","#ff5252"], hls:["https://af7a8b4e.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/TEctZ2JfdGFsa1NQT1JUX0hMUw/playlist.m3u8"] },
+
+  { id:"pga", group:"sport", name:"PGA Tour", sub:"Golf highlights & classic rounds", mono:"PGA", c:["#0b3d2e","#2e7d32"], hls:["https://d11k1mnrgfposz.cloudfront.net/playlist.m3u8"] },
+  { id:"fifa", group:"sport", name:"FIFA+", sub:"Football matches & stories", mono:"FIFA", c:["#0d47a1","#00b0ff"], hls:["https://a62dad94.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X0ZJRkFQbHVzRW5nbGlzaF9ITFM/playlist.m3u8"] },
+  { id:"mutv", group:"sport", name:"MUTV", sub:"Manchester United", mono:"MU", c:["#b71c1c","#ffcc00"], hls:["https://fastly.live.brightcove.com/6374054671112/eu-west-1/6058004203001/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJob3N0IjoiYXplMnp5LmVncmVzcy55ODN1ZWIiLCJhY2NvdW50X2lkIjoiNjA1ODAwNDIwMzAwMSIsImVobiI6ImZhc3RseS5saXZlLmJyaWdodGNvdmUuY29tIiwiaXNzIjoiYmxpdmUtcGxheWJhY2stc291cmNlLWFwaSIsInN1YiI6InBhdGhtYXB0b2tlbiIsImF1ZCI6WyI2MDU4MDA0MjAzMDAxIl0sImp0aSI6IjYzNzQwNTQ2NzExMTIifQ.3FmuTna3DAmY7xlhK5fk6LMrosrtrR5VsU2QOgYO5y4/playlist-hls.m3u8"] },
+  { id:"foxsportsau", group:"sport", name:"Fox Sports News", sub:"Australia · rugby, cricket, AFL", mono:"FSN", c:["#0d1b2a","#e63946"], hls:["https://skynewsau-live-premium.akamaized.net/hls/live/2105307/foxsportsnews/live_1080p.m3u8"] },
+  { id:"cricketgold", group:"sport", name:"Cricket Gold", sub:"Classic cricket matches", mono:"CG", c:["#1b5e20","#c0ca33"], hls:["https://streams2.sofast.tv/ptnr-yupptv/title-cricketgold/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/b2048bb8-1686-4432-aa50-647245383e0c/manifest.m3u8"] },
+  { id:"tennis", group:"sport", name:"Tennis Channel", sub:"Matches & highlights", mono:"TC", c:["#33691e","#cddc39"], hls:["https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01444-tennischannelth-tennischannelnl-samsungnl/playlist.m3u8"] },
+  { id:"rally", group:"sport", name:"Rally TV", sub:"WRC rallying", mono:"WRC", c:["#263238","#ff6d00"], hls:["https://rally-tv-live.akamaized.net/hls/live/2117704/RallyTV-Pri/master.m3u8"] },
+  { id:"strongman", group:"sport", name:"Strongman Champions League", sub:"Strength sport", mono:"SCL", c:["#212121","#ffab00"], hls:["https://rightsboosterltd-scl-1-be.samsung.wurl.tv/playlist.m3u8"] },
+  { id:"pfl", group:"sport", name:"PFL MMA", sub:"Mixed martial arts", mono:"PFL", c:["#000","#c62828"], hls:["https://a883593c.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X1BGTE1NQV9ITFM/playlist.m3u8"] },
+  { id:"wpt", group:"sport", name:"World Poker Tour", sub:"Poker tournaments", mono:"WPT", c:["#1a237e","#c5a100"], hls:["https://d39g1vxj2ef6in.cloudfront.net/v1/master/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod-rakuten-stitched/playlist.m3u8?ads.xumo_channelId=88883102"] },
+  { id:"stadium", group:"sport", name:"Stadium", sub:"US college & pro sport", mono:"STD", c:["#004d40","#26a69a"], hls:["https://wurl120sports.global.transmit.live/hls/679a907dce42a042c23ace37/v1/stadium_gracenote/samsung_us/latest/main/hls/playlist.m3u8"] },
+
+  { id:"moviesphere", group:"movies", name:"MovieSphere", sub:"Lionsgate films", mono:"MS", c:["#1a1a2e","#e94560"], hls:["https://amg00353-lionsgatefilmsi-moviesphereaus-samsungau-7qzhf.amagi.tv/playlist/amg00353-lionsgatefilmsi-moviesphereaus-samsungau/playlist.m3u8"] },
+  { id:"moviespheregold", group:"movies", name:"MovieSphere Gold", sub:"Mystery & thriller films", mono:"MSG", c:["#3e2723","#ffc107"], hls:["https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01438-ewscrippscompan-ionmystery-tablo/playlist.m3u8"] },
+  { id:"hallmark", group:"movies", name:"Hallmark Movies & More", sub:"Feel-good films", mono:"HM", c:["#880e4f","#f06292"], hls:["https://dbrb49pjoymg4.cloudfront.net/v1/master/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod_default_xumo-ams-aws/master.m3u8?ads.xumo_channelId=99991709"] },
+  { id:"gravitas", group:"movies", name:"Gravitas Movies", sub:"Independent films", mono:"GM", c:["#263238","#90a4ae"], hls:["https://d6dg3ebeih71x.cloudfront.net/Gravitas_Movies.m3u8"] },
+  { id:"whiplash", group:"movies", name:"Whiplash Cinema", sub:"Action & genre films", mono:"WC", c:["#b71c1c","#ff7043"], hls:["https://cdn.whiplash.cc/whiplash-cinema/index.m3u8"] },
+  { id:"western", group:"movies", name:"FilmRise Western", sub:"Classic westerns", mono:"WES", c:["#6d4c41","#ffb74d"], hls:["https://dz05z8iljgvbe.cloudfront.net/master.m3u8"] },
+  { id:"thearchive", group:"movies", name:"The Archive", sub:"Classic TV & films", mono:"ARC", c:["#37474f","#b0bec5"], hls:["https://linear-1080.frequency.stream/dist/cineverse/1080/hls/master/playlist.m3u8"] },
+  { id:"classictv", group:"movies", name:"FilmRise Classic TV", sub:"Vintage series", mono:"CTV", c:["#4e342e","#d7ccc8"], hls:["https://d2tv4k5moji5m7.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-lu4pzh9l4b57p/master.m3u8"] },
+  { id:"retrocrush", group:"movies", name:"RetroCrush", sub:"Classic anime", mono:"RC", c:["#6a1b9a","#ff4081"], hls:["https://linear-899.frequency.stream/dist/cineverse/899/hls/master/playlist.m3u8"] },
+  { id:"unsolved", group:"movies", name:"Unsolved Mysteries", sub:"The original series", mono:"UM", c:["#1a1a1a","#7e57c2"], hls:["https://d31z96rdrmwfsp.cloudfront.net/master.m3u8"] },
+
+  { id:"jamie", group:"food", name:"Jamie Oliver", sub:"Jamie's shows, back to back", mono:"JO", c:["#ef6c00","#ffd54f"], hls:["https://d3i68hpvh19xjd.cloudfront.net/JamieOliver_GB.m3u8"] },
+  { id:"tastemade", group:"food", name:"Tastemade", sub:"Food & travel", mono:"TM", c:["#d81b60","#ff80ab"], hls:["https://tastemade-tdint-rakuten.amagi.tv/playlist.m3u8"] },
+  { id:"bonappetit", group:"food", name:"Bon Appétit", sub:"Test kitchen & recipes", mono:"BA", c:["#212121","#ff5252"], hls:["https://bonappetit-samsung.amagi.tv/playlist.m3u8"] },
 ];
 function loadTvCustom(){ try{ return JSON.parse(localStorage.getItem("efm-tv-custom")||"[]") }catch(e){ return [] } }
 function saveTvCustom(l){ try{ localStorage.setItem("efm-tv-custom", JSON.stringify(l)) }catch(e){} }
 let CHANNELS = TV_BUILTIN.concat(loadTvCustom());
-let tvCurrent = null, tvHls = null, tvVideo = null;
+let tvCurrent = null, tvHls = null, tvVideo = null, tvDead = {}, tvChecked = false;
 
-function tvKind(ch){ return ch.svt ? "svt" : (ch.yt||ch.ytList||ch.ytv) ? "yt" : "link"; }
+function tvKind(ch){ return ch.svt ? "svt" : ch.hls ? "hls" : (ch.yt||ch.ytList||ch.ytv) ? "yt" : "link"; }
 function renderTV(){
   $("#tvGroups").innerHTML = TV_GROUPS.map(g=>{
-    const list = CHANNELS.filter(c=>c.group===g.id).map(c=>{
+    const list = CHANNELS.filter(c=>c.group===g.id && !tvDead[c.id]).map(c=>{
       const k = tvKind(c);
-      const pill = k==="svt" ? '<span class="pill svt">SVT live</span>' : k==="yt" ? `<span class="pill yt">${c.ytList?"Clips":"Live"}</span>` : '<span class="pill link">Opens SVT Play</span>';
+      const pill = k==="svt" ? '<span class="pill svt">SVT live</span>' : k==="hls" ? '<span class="pill svt">Live</span>' : k==="yt" ? `<span class="pill yt">${c.ytList?"Clips":"Live"}</span>` : '<span class="pill link">Opens SVT Play</span>';
       return `<button class="st ${tvCurrent&&tvCurrent.id===c.id?"on":""}" data-tv="${c.id}">
         ${c.custom?`<span class="del" data-tvdel="${c.id}" title="Remove channel">✕</span>`:""}
         <span class="live"><i></i><i></i><i></i><i></i></span>
@@ -699,7 +751,7 @@ function stopTV(){
 }
 function resetTV(){
   stopTV(); tvCurrent=null;
-  screenMsg("Pick a channel","Live news plays right here. Rotate your phone or use the player's full-screen button.");
+  screenMsg("Pick a channel","It plays right here. Rotate your phone or use the player's full-screen button.");
   $("#tvTitle").textContent="Nothing on"; $("#tvSub").textContent="Tap a channel below"; $("#tvOpen").style.display="none";
   const b=$("#tvBadge"); b.textContent="TV"; b.style.background="linear-gradient(135deg,#2a2160,#1d1646)";
   document.querySelectorAll("[data-tv]").forEach(el=>el.classList.remove("on"));
@@ -716,11 +768,12 @@ function watch(id){
   const b=$("#tvBadge"); b.textContent=ch.mono; b.style.background=`linear-gradient(135deg,${ch.c[0]},${ch.c[1]})`;
   $("#tvTitle").textContent = ch.name; $("#tvSub").textContent = ch.sub;
   const open=$("#tvOpen");
-  if (ch.open && tvKind(ch)!=="link"){ open.href=ch.open; open.textContent = ch.openLabel || (ch.svt ? "SVT Play ↗" : "YouTube ↗"); open.style.display="inline-block"; }
+  if (ch.open && !["link","hls"].includes(tvKind(ch))){ open.href=ch.open; open.textContent = ch.openLabel || (ch.svt ? "SVT Play ↗" : "YouTube ↗"); open.style.display="inline-block"; }
   else open.style.display="none";
   document.querySelectorAll("[data-tv]").forEach(el=>el.classList.toggle("on", el.dataset.tv===id));
   const k = tvKind(ch);
-  if (k==="yt") playYT(ch);
+  if (k==="hls") playHLS(ch);
+  else if (k==="yt") playYT(ch);
   else if (k==="svt") playSVT(ch);
   else screenMsg(ch.name, `${escapeHtml(ch.sub)}.<br><br><a class="btn pri" style="text-decoration:none" href="${ch.open}" target="_blank" rel="noopener">${ch.openLabel||"Open ↗"}</a>`);
 }
@@ -760,6 +813,52 @@ async function playSVT(ch){
     }
     try{ await tvVideo.play(); }catch(e){ /* autoplay blocked: controls are showing, one tap starts it */ }
   }catch(e){ fail(); }
+}
+
+/* Direct live streams: try each link; if all fail, fall back to YouTube (if the channel has one) */
+async function playHLS(ch, idx=0){
+  if (tvCurrent!==ch) return;
+  const urls = ch.hls;
+  if (idx >= urls.length){
+    stopTV();
+    if (ch.yt) { playYT(ch); return; }
+    screenMsg(ch.name+" is off air", "This channel isn't streaming right now. Try again later or pick another one.");
+    return;
+  }
+  stopTV();
+  screenMsg("Tuning in…", "Connecting to "+escapeHtml(ch.name));
+  const url = urls[idx];
+  $("#screen").innerHTML = '<video playsinline controls autoplay></video>';
+  tvVideo = $("#screen video");
+  const next = ()=>{ clearTimeout(guard); if (tvCurrent===ch) playHLS(ch, idx+1); };
+  const guard = setTimeout(()=>{ if (tvVideo && tvVideo.readyState<2) next(); }, 15000);
+  tvVideo.addEventListener("playing", ()=>clearTimeout(guard), {once:true});
+  try{
+    if (tvVideo.canPlayType("application/vnd.apple.mpegurl")){
+      tvVideo.src = url;
+      tvVideo.addEventListener("error", next, {once:true});
+    } else {
+      await loadHlsJs();
+      if (!window.Hls || !Hls.isSupported()) throw new Error("no hls.js");
+      if (tvCurrent!==ch) return;
+      tvHls = new Hls();
+      tvHls.on(Hls.Events.ERROR, (e,d)=>{ if (d.fatal) next(); });
+      tvHls.loadSource(url); tvHls.attachMedia(tvVideo);
+    }
+    try{ await tvVideo.play(); }catch(e){ /* autoplay blocked: one tap on the video starts it */ }
+  }catch(e){ next(); }
+}
+/* Quietly check the direct-stream channels once per visit and hide any that are off air */
+async function checkTvChannels(){
+  if (tvChecked) return; tvChecked = true;
+  const list = CHANNELS.filter(c=>c.hls && !c.yt);
+  const alive = async url=>{ try{ const r = await withTimeout(fetch(url,{cache:"no-store"}),8000); if (!r.ok) return false; const t = await r.text(); return t.includes("#EXTM3U"); }catch(e){ return false } };
+  let changed=false;
+  await Promise.all(list.map(async c=>{
+    for (const u of c.hls){ if (await alive(u)) return; }
+    if (!(tvCurrent && tvCurrent.id===c.id)){ tvDead[c.id]=true; changed=true; }
+  }));
+  if (changed) renderTV();
 }
 
 /* Add / remove TV channels */
