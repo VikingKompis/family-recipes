@@ -320,12 +320,21 @@ function svg(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 
 /* ============ VIKING MASCOT (original character) ============ */
 const VK={ink:"#12171C",skin:"#EDC09A",skinD:"#D9A27A",beard:"#C8662F",beardD:"#9E4B1F",tunic:"#2F4A63",tunicL:"#3D5D7C",belt:"#D4A84B",steel:"#B3BCC5",steelD:"#7F8A95",horn:"#EFE7D6",pants:"#252E38",boot:"#6B4A33",iron:"#3C4754"};
-function vkArm(pts){ // shoulder -> elbow -> hand
+function vkArm(pts){ // sleeved arm: shoulder -> elbow -> fist
   const d="M"+pts.map(p=>p.join(" ")).join(" L");
-  const h=pts[pts.length-1];
-  return `<path d="${d}" fill="none" stroke="${VK.ink}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="${d}" fill="none" stroke="${VK.skin}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="${h[0]}" cy="${h[1]}" r="4.6" fill="${VK.skin}" stroke="${VK.ink}" stroke-width="1.6"/>`;
+  const h=pts[pts.length-1], e=pts[pts.length-2];
+  const dx=h[0]-e[0], dy=h[1]-e[1], len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
+  const c1=[h[0]-ux*9.5,h[1]-uy*9.5], c2=[h[0]-ux*5.5,h[1]-uy*5.5];
+  const ang=Math.atan2(dy,dx)*180/Math.PI;
+  return `<path d="${d}" fill="none" stroke="${VK.ink}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="${d}" fill="none" stroke="${VK.tunic}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M${pts[0][0]} ${pts[0][1]} L${e[0]} ${e[1]}" fill="none" stroke="${VK.tunicL}" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+  <path d="M${c1.join(" ")} L${c2.join(" ")}" stroke="${VK.ink}" stroke-width="11.5" stroke-linecap="butt"/>
+  <path d="M${c1.join(" ")} L${c2.join(" ")}" stroke="${VK.belt}" stroke-width="8.5" stroke-linecap="butt"/>
+  <g transform="translate(${h[0]} ${h[1]}) rotate(${ang})">
+    <rect x="-3.2" y="-5" width="8.5" height="10" rx="3.2" fill="${VK.skin}" stroke="${VK.ink}" stroke-width="1.5"/>
+    <path d="M1.8 -4.2 V4.2 M-0.6 -1.6 H3.4 M-0.6 1.6 H3.4" stroke="${VK.skinD}" stroke-width="1" stroke-linecap="round"/>
+  </g>`;
 }
 function vkLegs(jump){
   const y=jump?-4:0;
