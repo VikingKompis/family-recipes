@@ -221,7 +221,7 @@ textarea.copy{width:100%;height:220px;background:var(--sheet);border:0;border-ra
 
 /* viking */
 .vk{display:block;flex:none}
-.brand .vk{width:36px;height:36px;border-radius:10px;background:#2A333D}
+.brand .vk{width:36px;height:36px}
 .greetrow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-bottom:14px}
 .greetrow .display{margin-bottom:4px}
 .greetrow .date{margin:0}
@@ -318,90 +318,67 @@ IC.body='<circle cx="12" cy="4.5" r="2"/><path d="M7 9l5-1.5L17 9M12 7.5V14M12 1
 IC.search='<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>';
 function svg(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(IC[k]||IC.bw)+'</svg>';}
 
-/* ============ VIKING WARRIOR MASCOT (original character) ============ */
-const VK={ink:"#0E1216",skin:"#D9A37C",skinD:"#B47D58",skinL:"#E9BE98",beard:"#9C4E26",beardD:"#6E3417",beardL:"#B9663A",hair:"#874322",
-  iron:"#2B333C",ironL:"#46525E",steel:"#8D98A3",steelL:"#B9C2CA",steelD:"#5E6A75",brass:"#D4A84B",brassD:"#9C7A2E",
-  fur:"#4A3B2F",furD:"#2F251D",furL:"#6E5845",cloth:"#26323E",eye:"#E9EEF2"};
-function vkBust(){
-  const o=`stroke="${VK.ink}" stroke-width="2" stroke-linejoin="round"`;
-  return `
-  <!-- long hair behind -->
-  <path d="M34 50 Q28 74 30 98 L44 98 Q40 76 42 56 Z" fill="${VK.hair}" ${o}/>
-  <path d="M86 50 Q92 74 90 98 L76 98 Q80 76 78 56 Z" fill="${VK.hair}" ${o}/>
-  <!-- fur mantle / shoulders -->
-  <path d="M-2 124 Q0 96 20 87 Q38 80 60 82 Q82 80 100 87 Q120 96 122 124 Z" fill="${VK.fur}" ${o}/>
-  <path d="M14 98 l5 -5 l2 6 l5 -6 l2 6 l5 -6 l3 6 M78 93 l3 6 l4 -6 l3 6 l4 -6 l2 6 l5 -5" fill="none" stroke="${VK.furL}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M10 112 l4 -4 M22 116 l4 -5 M96 111 l4 4 M104 116 l3 -4" stroke="${VK.furD}" stroke-width="2.2" stroke-linecap="round"/>
-  <!-- neck + mail -->
-  <path d="M43 76 L42 94 Q60 101 78 94 L77 76 Z" fill="${VK.skinD}" ${o}/>
-  <path d="M40 96 Q60 106 80 96 L84 122 L36 122 Z" fill="${VK.cloth}" ${o}/>
-  <path d="M44 104 h32 M42 110 h36 M41 116 h38" stroke="${VK.ironL}" stroke-width="1.2" stroke-dasharray="2 2"/>
-  <!-- brooch -->
-  <circle cx="90" cy="102" r="7" fill="none" stroke="${VK.ink}" stroke-width="5"/><circle cx="90" cy="102" r="7" fill="none" stroke="${VK.brass}" stroke-width="3"/>
-  <path d="M84 96 L97 109" stroke="${VK.ink}" stroke-width="3.4" stroke-linecap="round"/><path d="M84 96 L97 109" stroke="${VK.brassD}" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- face -->
-  <path d="M38 48 Q38 28 60 28 Q82 28 82 48 L82 64 Q80 80 60 84 Q40 80 38 64 Z" fill="${VK.skin}" ${o}/>
-  <path d="M70 60 Q80 58 81 50 L82 64 Q80 78 66 82 Q76 72 70 60 Z" fill="${VK.skinD}" opacity=".55"/>
-  <!-- ears -->
-  <path d="M38 52 Q32 52 33 58 Q34 63 39 62" fill="${VK.skin}" ${o}/><path d="M82 52 Q88 52 87 58 Q86 63 81 62" fill="${VK.skinD}" ${o}/>
-  <!-- scar -->
-  <path d="M73 61 L77 71" stroke="${VK.skinL}" stroke-width="1.8" stroke-linecap="round"/><path d="M72.5 64 l3 -1 M74 68 l3 -1" stroke="${VK.skinD}" stroke-width="1" stroke-linecap="round"/>
-  <!-- helmet dome -->
-  <path d="M35 47 Q34 14 60 12 Q86 14 85 47 Z" fill="${VK.steel}" ${o}/>
-  <path d="M70 16 Q83 22 84 40 L72 38 Q72 24 70 16 Z" fill="${VK.steelD}" opacity=".55"/><path d="M44 22 Q52 15 60 15" fill="none" stroke="${VK.steelL}" stroke-width="3" stroke-linecap="round"/>
-  <path d="M60 12 L60 47" stroke="${VK.ink}" stroke-width="6"/><path d="M60 13 L60 46" stroke="${VK.brass}" stroke-width="3.2"/>
-  <path d="M35 40 Q60 34 85 40 L85 47 Q60 41 35 47 Z" fill="${VK.brass}" ${o}/>
-  <circle cx="44" cy="41.5" r="1.2" fill="${VK.brassD}"/><circle cx="52" cy="40" r="1.2" fill="${VK.brassD}"/><circle cx="68" cy="40" r="1.2" fill="${VK.brassD}"/><circle cx="76" cy="41.5" r="1.2" fill="${VK.brassD}"/>
-  <!-- spectacle guard -->
-  <path d="M36 46 Q60 41 84 46 L83 54 Q76 62 66 58 L63 64 L57 64 L54 58 Q44 62 37 54 Z" fill="${VK.iron}" ${o}/>
-  <path d="M41.5 48.5 L55.5 51.5 Q52 57.5 46 56.5 Q41.5 55.5 41.5 48.5 Z" fill="${VK.ink}"/>
-  <path d="M78.5 48.5 L64.5 51.5 Q68 57.5 74 56.5 Q78.5 55.5 78.5 48.5 Z" fill="${VK.ink}"/>
-  <path d="M44 51.6 L52.4 53.6 Q48.5 55.4 44.6 54 Z" fill="${VK.eye}"/><circle cx="49" cy="53.4" r="1.25" fill="${VK.ink}"/>
-  <path d="M76 51.6 L67.6 53.6 Q71.5 55.4 75.4 54 Z" fill="${VK.eye}"/><circle cx="71" cy="53.4" r="1.25" fill="${VK.ink}"/>
-  <path d="M58 46 L58 66 Q60 68 62 66 L62 46 Z" fill="${VK.ironL}" stroke="${VK.ink}" stroke-width="1.6"/>
-  <!-- beard -->
-  <path d="M38 60 Q40 72 46 76 Q52 80 60 79 Q68 80 74 76 Q80 72 82 60 Q86 78 82 93 Q77 105 68 109 L66 118 L60 112 L54 118 L52 109 Q43 105 38 93 Q34 78 38 60 Z" fill="${VK.beard}" ${o}/>
-  <path d="M46 82 Q48 92 50 100 M54 84 Q55 94 56 104 M66 84 Q65 94 64 104 M74 82 Q72 92 70 100 M42 76 Q43 84 45 90 M78 76 Q77 84 75 90" fill="none" stroke="${VK.beardD}" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M50 82 Q51 88 52 94 M70 82 Q69 88 68 94" fill="none" stroke="${VK.beardL}" stroke-width="1.3" stroke-linecap="round"/>
-  <!-- braids -->
-  <path d="M53 106 L52 122 M67 106 L68 122" stroke="${VK.ink}" stroke-width="7" stroke-linecap="round"/>
-  <path d="M53 106 L52 122 M67 106 L68 122" stroke="${VK.beard}" stroke-width="4.4" stroke-linecap="round"/>
-  <path d="M50 110.5 l5 1 M50 115.5 l5 1 M65 111.5 l5 -1 M65.5 116.5 l5 -1" stroke="${VK.beardD}" stroke-width="1.2" stroke-linecap="round"/>
-  <rect x="48.8" y="112.5" width="7" height="3.6" rx="1.2" fill="${VK.brass}" stroke="${VK.ink}" stroke-width="1.2"/>
-  <rect x="64.2" y="112.5" width="7" height="3.6" rx="1.2" fill="${VK.brass}" stroke="${VK.ink}" stroke-width="1.2"/>
-  <!-- moustache + mouth -->
-  <path d="M60 68 Q50 66 44 74 Q50 73 54 75 Q57 72 60 73 Q63 72 66 75 Q70 73 76 74 Q70 66 60 68 Z" fill="${VK.beardD}" ${o}/>
-  <path d="M55 77 Q60 75.5 65 77" stroke="${VK.ink}" stroke-width="1.8" stroke-linecap="round" fill="none"/>`;
+/* ============ EQUIPMENT + PULSE EMBLEMS ============ */
+const E={ink:"#0E1216",iron:"#3C4754",ironL:"#5A6878",ironD:"#2B333C",steel:"#8D98A3",steelL:"#B9C2CA",brass:"#D4A84B",brassL:"#F0CF7E",bg:"#232A33"};
+function pulse(d,w){ w=w||3.6; return `<path d="${d}" fill="none" stroke="${E.brass}" stroke-width="${w*2.6}" stroke-linecap="round" stroke-linejoin="round" opacity=".18"/><path d="${d}" fill="none" stroke="${E.ink}" stroke-width="${w+2.4}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${E.brass}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`; }
+function kbShape(cx,cy,r){ // kettlebell body + handle
+  const hw=r*0.62, ht=r*1.55;
+  return `<path d="M${cx-hw} ${cy-r*0.62} Q${cx-hw-2} ${cy-ht-r*0.25} ${cx} ${cy-ht-r*0.25} Q${cx+hw+2} ${cy-ht-r*0.25} ${cx+hw} ${cy-r*0.62}" fill="none" stroke="${E.ink}" stroke-width="${r*0.42}" stroke-linecap="round"/>
+  <path d="M${cx-hw} ${cy-r*0.62} Q${cx-hw-2} ${cy-ht-r*0.25} ${cx} ${cy-ht-r*0.25} Q${cx+hw+2} ${cy-ht-r*0.25} ${cx+hw} ${cy-r*0.62}" fill="none" stroke="${E.iron}" stroke-width="${r*0.26}" stroke-linecap="round"/>
+  <path d="M${cx-r} ${cy} A${r} ${r} 0 1 1 ${cx+r} ${cy} L${cx+r*0.82} ${cy+r*0.74} Q${cx} ${cy+r*1.08} ${cx-r*0.82} ${cy+r*0.74} Z" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M${cx-r*0.7} ${cy-r*0.25} Q${cx-r*0.55} ${cy-r*0.72} ${cx-r*0.05} ${cy-r*0.8}" fill="none" stroke="${E.ironL}" stroke-width="${r*0.14}" stroke-linecap="round"/>`;
 }
-function vkProp(kind){
-  const iron=VK.iron, ink=VK.ink;
-  switch(kind){
-    case "bb": return `<rect x="-6" y="78" width="132" height="5" rx="2.5" fill="${VK.steelD}" stroke="${ink}" stroke-width="1.6"/>
-      <rect x="-2" y="62" width="9" height="37" rx="2.5" fill="${iron}" stroke="${ink}" stroke-width="2"/><rect x="8" y="67" width="6" height="27" rx="2" fill="${iron}" stroke="${ink}" stroke-width="2"/>
-      <rect x="113" y="62" width="9" height="37" rx="2.5" fill="${iron}" stroke="${ink}" stroke-width="2"/><rect x="106" y="67" width="6" height="27" rx="2" fill="${iron}" stroke="${ink}" stroke-width="2"/>
-      <rect x="15" y="75" width="3" height="11" rx="1" fill="${VK.brass}"/><rect x="102" y="75" width="3" height="11" rx="1" fill="${VK.brass}"/>`;
-    case "kb": return `<path d="M93 70 Q93 56 103 56 Q113 56 113 70" fill="none" stroke="${ink}" stroke-width="7"/><path d="M93 70 Q93 56 103 56 Q113 56 113 70" fill="none" stroke="${iron}" stroke-width="3.6"/>
-      <circle cx="103" cy="80" r="14" fill="${iron}" stroke="${ink}" stroke-width="2.2"/><rect x="96" y="79" width="14" height="6" rx="1.5" fill="${VK.brass}"/>
-      <path d="M94 74 Q98 68 104 68" fill="none" stroke="${VK.ironL}" stroke-width="2" stroke-linecap="round"/>`;
-    case "db": return `<g transform="rotate(-35 18 78)"><rect x="4" y="75.5" width="28" height="5" fill="${VK.steelD}" stroke="${ink}" stroke-width="1.5"/>
-      <rect x="-2" y="68" width="8" height="20" rx="2" fill="${iron}" stroke="${ink}" stroke-width="2"/><rect x="30" y="68" width="8" height="20" rx="2" fill="${iron}" stroke="${ink}" stroke-width="2"/></g>`;
-    case "rope": return `<path d="M88 96 C100 70 120 76 112 96 C106 110 94 104 98 92" fill="none" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>
-      <path d="M88 96 C100 70 120 76 112 96 C106 110 94 104 98 92" fill="none" stroke="${VK.brass}" stroke-width="2.6" stroke-linecap="round"/>
-      <rect x="84" y="94" width="7" height="13" rx="2.5" fill="${VK.fur}" stroke="${ink}" stroke-width="1.6" transform="rotate(25 87 100)"/>`;
-    case "flex": return `<circle cx="60" cy="56" r="52" fill="none" stroke="${VK.brass}" stroke-width="2" opacity=".35"/>`;
-    case "trophy": return `<circle cx="60" cy="60" r="56" fill="${VK.brass}" opacity=".12"/><circle cx="60" cy="60" r="56" fill="none" stroke="${VK.brass}" stroke-width="2.5"/>
-      <path d="M22 26 l3 7 l7 1 l-5 5 l1 7 l-6 -3 l-6 3 l1 -7 l-5 -5 l7 -1z M98 26 l3 7 l7 1 l-5 5 l1 7 l-6 -3 l-6 3 l1 -7 l-5 -5 l7 -1z" fill="${VK.brass}" stroke="${ink}" stroke-width="1.2"/>`;
-    default: return "";
-  }
-}
-function viking(pose,size,cls){
-  if(pose==="face") return `<svg class="vk ${cls||""}" viewBox="12 10 96 96" width="${size}" height="${size}" aria-hidden="true">${vkBust()}</svg>`;
-  const p = pose==="head"||pose==="idle"||pose==="wave" ? "" : pose;
-  const behind = p==="kb"||p==="db"||p==="bb"||p==="flex"||p==="trophy" ? vkProp(p) : "";
-  const front = p==="rope" ? vkProp(p) : "";
-  const vb = p==="bb" ? "-8 0 136 124" : "0 0 120 124";
-  return `<svg class="vk ${cls||""}" viewBox="${vb}" width="${size}" height="${size}" aria-hidden="true">${behind}${vkBust()}${front}</svg>`;
-}
+const EMBLEMS={
+  a:{name:"Pulse bell",note:"Kettlebell with a heartbeat running straight through it",svg:()=>`${kbShape(60,70,30)}${pulse("M8 72 H38 L45 58 L53 88 L62 46 L70 80 L76 72 H112")}`},
+  b:{name:"One line",note:"Kettlebell sitting on a double heartbeat",svg:()=>`
+    <path d="M10 82 H30 L36 72 L42 92 L47 82 H44 Q30 82 30 64 Q30 38 60 38 Q90 38 90 64 Q90 82 76 82 H73 L78 70 L84 92 L90 82 H110" fill="none" stroke="${E.brass}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".16"/>
+    <path d="M44 82 Q30 82 30 64 Q30 38 60 38 Q90 38 90 64 Q90 82 76 82 Z" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.4"/>
+    <path d="M47 41 Q45 18 60 18 Q75 18 73 41" fill="none" stroke="${E.ink}" stroke-width="12" stroke-linecap="round"/><path d="M47 41 Q45 18 60 18 Q75 18 73 41" fill="none" stroke="${E.iron}" stroke-width="7" stroke-linecap="round"/>
+    <path d="M38 58 Q40 46 54 44" fill="none" stroke="${E.ironL}" stroke-width="4" stroke-linecap="round"/>
+    ${pulse("M10 82 H30 L36 72 L42 92 L47 82 H73 L78 70 L84 92 L90 82 H110")}`},
+  c:{name:"Beat bar",note:"Dumbbell whose handle is a heartbeat spike",svg:()=>`
+    <rect x="10" y="40" width="14" height="40" rx="4" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.4"/><rect x="24" y="46" width="10" height="28" rx="3" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.4"/>
+    <rect x="96" y="40" width="14" height="40" rx="4" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.4"/><rect x="86" y="46" width="10" height="28" rx="3" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.4"/>
+    <path d="M13 46 V62 M99 46 V62" stroke="${E.ironL}" stroke-width="3" stroke-linecap="round"/>
+    ${pulse("M34 60 H46 L52 46 L60 80 L67 34 L74 70 L78 60 H86",4)}`},
+  d:{name:"Plate pulse",note:"Iron weight plate with a heartbeat across the centre",svg:()=>`
+    <circle cx="60" cy="60" r="46" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.6"/><circle cx="60" cy="60" r="38" fill="none" stroke="${E.ironD}" stroke-width="3"/>
+    <path d="M24 46 Q34 22 60 16" fill="none" stroke="${E.ironL}" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="60" cy="60" r="8" fill="${E.bg}" stroke="${E.ink}" stroke-width="2.4"/>
+    ${pulse("M14 60 H36 L42 48 L49 74 L55 60 H65 L71 40 L78 80 L84 60 H106")}`},
+  e:{name:"Heart & iron",note:"Kettlebell inside a heart, with the pulse running through",svg:()=>`
+    <path d="M60 104 Q20 78 14 52 Q10 30 30 22 Q48 16 60 34 Q72 16 90 22 Q110 30 106 52 Q100 78 60 104 Z" fill="none" stroke="${E.ink}" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M60 104 Q20 78 14 52 Q10 30 30 22 Q48 16 60 34 Q72 16 90 22 Q110 30 106 52 Q100 78 60 104 Z" fill="none" stroke="${E.brass}" stroke-width="3.6" stroke-linejoin="round"/>
+    ${kbShape(60,66,17)}
+    ${pulse("M22 66 H34 L38 58 L42 74 L45 66 M75 66 L78 58 L82 74 L86 66 H98",3)}`},
+  f:{name:"Badge",note:"App-style badge with a kettlebell and pulse",svg:()=>`
+    <rect x="10" y="10" width="100" height="100" rx="26" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.6"/>
+    <rect x="16" y="16" width="88" height="88" rx="21" fill="none" stroke="${E.ironL}" stroke-width="1.6" opacity=".6"/>
+    ${kbShape(60,58,22).replace(new RegExp(E.iron,"g"),E.ironD)}
+    ${pulse("M18 86 H40 L45 76 L51 96 L57 80 L61 86 H102",3.2)}`}
+};
+function emblem(id,size){ return `<svg viewBox="0 0 120 120" width="${size}" height="${size}" aria-hidden="true">${EMBLEMS[id].svg()}</svg>`; }
+
+
+EMBLEMS.bar={svg:()=>`
+  <path d="M14 22 H106" stroke="${E.ink}" stroke-width="9" stroke-linecap="round"/><path d="M14 22 H106" stroke="${E.steel}" stroke-width="5" stroke-linecap="round"/>
+  <path d="M22 22 V104 M98 22 V104" stroke="${E.ink}" stroke-width="10" stroke-linecap="round"/><path d="M22 22 V104 M98 22 V104" stroke="${E.iron}" stroke-width="6" stroke-linecap="round"/>
+  <path d="M12 106 H32 M88 106 H108" stroke="${E.ink}" stroke-width="7" stroke-linecap="round"/>
+  <path d="M42 22 v8 M78 22 v8" stroke="${E.ink}" stroke-width="5" stroke-linecap="round"/>
+  ${pulse("M24 68 H40 L46 54 L53 84 L60 40 L67 80 L73 68 H96")}`};
+EMBLEMS.rope={svg:()=>`
+  <path d="M30 34 C10 110 110 110 90 34" fill="none" stroke="${E.ink}" stroke-width="6" stroke-linecap="round"/><path d="M30 34 C10 110 110 110 90 34" fill="none" stroke="${E.steelL}" stroke-width="3" stroke-linecap="round"/>
+  <rect x="23" y="12" width="14" height="26" rx="6" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.4"/><rect x="83" y="12" width="14" height="26" rx="6" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.4"/>
+  <path d="M27 17 v12 M87 17 v12" stroke="${E.ironL}" stroke-width="2.4" stroke-linecap="round"/>
+  ${pulse("M30 64 H44 L49 52 L55 78 L61 44 L67 74 L72 64 H90",3.4)}`};
+EMBLEMS.trophy={svg:()=>`
+  <path d="M34 16 H86 V40 Q86 70 60 72 Q34 70 34 40 Z" fill="${E.brass}" stroke="${E.ink}" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M34 24 Q16 24 18 40 Q20 54 38 56 M86 24 Q104 24 102 40 Q100 54 82 56" fill="none" stroke="${E.ink}" stroke-width="6"/><path d="M34 24 Q16 24 18 40 Q20 54 38 56 M86 24 Q104 24 102 40 Q100 54 82 56" fill="none" stroke="${E.brass}" stroke-width="3"/>
+  <path d="M42 22 Q42 44 50 56" fill="none" stroke="${E.brassL}" stroke-width="3.6" stroke-linecap="round"/>
+  <rect x="53" y="72" width="14" height="14" fill="${E.brass}" stroke="${E.ink}" stroke-width="2.4"/><rect x="38" y="86" width="44" height="14" rx="3" fill="${E.iron}" stroke="${E.ink}" stroke-width="2.4"/>
+  <path d="M40 42 H50 L54 34 L59 52 L64 30 L69 48 L72 42 H80" fill="none" stroke="${E.ink}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>`};
+const ART_MAP={brand:"e",face:"e",head:"e",wave:"e",idle:"e",kb:"e",bb:"c",db:"c",flex:"bar",rope:"rope",trophy:"trophy",home:"c"};
+function viking(pose,size,cls){ const id=ART_MAP[pose]||"e"; return `<svg class="vk ${cls||""}" viewBox="0 0 120 120" width="${size}" height="${size}" aria-hidden="true">${EMBLEMS[id].svg()}</svg>`; }
 const TYPE_VK={wt:"bb",kb:"kb",cal:"flex",skip:"rope"};
 
 /* ============ EQUIPMENT ============ */
@@ -751,7 +728,7 @@ function params(e,goal,role){
   if(e.unit==="s"){ reps = goal==="endurance"?"45–60 s":"30–45 s"; work=45; }
   if(e.unit==="m"){ reps = goal==="endurance"?"60 m":"30–40 m"; work=40; }
   if(EFFORT==="easy"){ sets=Math.max(2,sets-1); }
-  if(isUni(e)&&e.unit!=="m"){ reps+=" /side"; work=Math.round(work*1.8); }
+  if(isUni(e)&&e.unit!=="m"){ reps+=" /side"; work=Math.round(work*1.5); rest=Math.max(45,rest-15); }
   return {sets,reps,rest,work};
 }
 function itemMins(it){ return it.sets*(it.work+it.rest)/60 + 0.5; }
@@ -773,7 +750,7 @@ function buildStraight(cands,slots,goal,budget){
     if(!e){miss++;continue;}
     miss=0;
     const role = want&&BIG.has(e.id)?"p":"a";
-    const it=makeItem(e,goal,role), m=itemMins(it);
+    const it=makeItem(e,goal,role); if(budget<=30){ it.sets=Math.min(it.sets,3); if(role==="a"&&it.unit!=="m") it.rest=Math.min(it.rest,45); if(budget<=20) it.rest=Math.min(it.rest,90); } const m=itemMins(it);
     if(t+m>budget+2 && items.length>=2) break;
     used.add(e.id); items.push(it); t+=m; if(role==="p") pc++;
   }
@@ -836,7 +813,7 @@ function generate(w){
   const slotsFor = ()=>{ const lists=foci.map(f=>(type==="kb"?KB_SLOTS[f]:SLOTS[f])||SLOTS.full); if(lists.length===1) return lists[0];
     const out=[], L=Math.max(...lists.map(l=>l.length)); for(let i=0;i<L;i++) lists.forEach(l=>{ if(l[i]) out.push(l[i]); }); return out; };
   if(time==="pick"||!time) time=45;
-  const ovh=time<=20?4:8, budget=Math.max(5,time-ovh);
+  const ovh=time<=20?4:time<=30?6:8, budget=Math.max(5,time-ovh);
   const ml=maxLevel();
   let all=pool(type,c), cands=all.filter(e=>e.level<=ml);
   POOL_ALL = type==="wt"&&w.where==="home" ? all.concat(pool("cal",c).filter(x=>!all.includes(x)&&x.level<=Math.max(ml,2))) : all;
@@ -996,7 +973,7 @@ function barbell(cols,dark,cls){
   });
   return s+"</svg>";
 }
-function hdr(left,right){ return `<div class="top">${left||`<div class="brand">${viking("face",36)}<span>GymKompis</span></div>`}${right||""}</div>`; }
+function hdr(left,right){ return `<div class="top">${left||`<div class="brand">${viking("brand",36)}<span>GymKompis</span></div>`}${right||""}</div>`; }
 function back(to,label){ return `<button class="nav" data-a="go" data-v="${to}">${svg("back")}${label||"Back"}</button>`; }
 function greet(){ const h=new Date().getHours(); return h<12?"Morning":h<18?"Afternoon":"Evening"; }
 function eqName(q){ return q==="kb2"?"2 kettlebells":(EQUIP.find(x=>x[0]===q)||[0,q])[1]; }
@@ -1066,7 +1043,7 @@ function tDraw(){
 function tDrawDone(){
   TM.el.className="show";
   TM.el.innerHTML=`<div class="t-top"><span class="t-meta">${esc(TM.title)}</span><button class="iconbtn" data-t="close" aria-label="Close">${svg("close")}</button></div>
-  <div class="t-main">${viking("trophy",150)}<div class="t-done">Done.</div><div class="t-sub" style="margin-top:8px">${esc(TM.ph.doneMsg||"Nice work.")}</div></div>
+  <div class="t-main">${viking("trophy",140)}<div class="t-done">Done.</div><div class="t-sub" style="margin-top:8px">${esc(TM.ph.doneMsg||"Nice work.")}</div></div>
   <div class="t-ctrl"><button class="btn" style="max-width:320px" data-t="close">Back to the session</button></div>`;
   if(TM.onDone) TM.onDone();
 }
@@ -1150,7 +1127,7 @@ function vHome(){
   const today=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
   const q=[["wt","Weights",S.equip.gym?"Gym, 60 min":"Home, 45 min"],["kb","Kettlebells","Home, 30 min"],["cal","Calisthenics","Bodyweight, 30 min"],["skip","Skipping","Rope intervals, 20 min"]];
   return hdr(null,`<button class="iconbtn" data-a="go" data-v="settings" aria-label="Settings">${svg("gear")}</button>`) + `
-  <div class="greetrow"><div><h1 class="display md">${greet()}, ${esc(p.name||"kompis")}.</h1><p class="date">${today}</p></div>${viking("kb",92)}</div>
+  <div class="greetrow"><div><h1 class="display md">${greet()}, ${esc(p.name||"kompis")}.</h1><p class="date">${today}</p></div>${viking("home",80)}</div>
   <button class="prime" data-a="startWiz" data-v="auto"><span class="gico solid">${svg("bolt")}</span><span class="row-b"><span class="t">Build today's session</span><small>Pick where, what and how long</small></span><span class="chev">›</span></button>
   <h2 class="h2">Quick start</h2>
   <p class="small" style="margin:-4px 0 12px">One tap. GymKompis picks the goal and focus.</p>
@@ -1260,7 +1237,7 @@ function vSession(){
   <p class="lede" style="margin-bottom:16px">${m.effort==="easy"?"Easy tick-over":GOALS[m.goal]} session${m.time?`, built for ${m.time} minutes`:""}</p>
   <div class="figs"><div><b>${s.mins}</b><span class="fl">${svg("clock")}minutes</span></div><div><b>${s.kcal}</b><span class="fl">${svg("flame")}kcal, rough</span></div><div><b>${nEx}</b><span class="fl">${svg("list")}exercises</span></div></div>
   ${nEx===0?`<div class="warn">No exercises fit that combination with your kit. Pick another focus or add equipment.</div>`:nEx<3&&m.type!=="skip"&&(s.mins||0)>=25?`<div class="warn">Only ${nEx} exercise${nEx>1?"s":""} fit this with your kit. Add equipment in Settings, or pick another focus, for more variety.</div>`:""}
-  <button class="fold ${ui.warm?"open":""}" data-a="fold" data-v="warm" aria-expanded="${!!ui.warm}"><span>Warm-up, ${(m.ovh||8)<8?3:5} min</span><span class="chev">›</span></button>
+  <button class="fold ${ui.warm?"open":""}" data-a="fold" data-v="warm" aria-expanded="${!!ui.warm}"><span>Warm-up, ${(m.ovh||8)<=4?3:(m.ovh||8)<8?4:5} min</span><span class="chev">›</span></button>
   ${ui.warm?`<ul class="foldbody">${WARMUP[m.type].map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
   ${s.blocks.map((b,bi)=>`<section class="sheet">
     <div class="sheet-h"><h2>${esc(b.title)}</h2>${b.kind==="circuit"?`<p><span class="rounds">${b.rounds} rounds</span><br>${fmtW(b.work)} on, ${fmtW(b.rest)} off</p>`:`<p>${note0(m.goal)}</p>`}</div>
@@ -1269,7 +1246,7 @@ function vSession(){
     ${b.items.map((it,ii)=>vItem(s,b,bi,it,ii)).join("")}
     ${b.kind==="circuit"?`<p class="small" style="padding:0 18px 14px">Rest 1 min between rounds.</p>`:""}
   </section>`).join("")}
-  <button class="fold ${ui.cool?"open":""}" data-a="fold" data-v="cool" aria-expanded="${!!ui.cool}"><span>Cool-down, ${(m.ovh||8)<8?1:3} min</span><span class="chev">›</span></button>
+  <button class="fold ${ui.cool?"open":""}" data-a="fold" data-v="cool" aria-expanded="${!!ui.cool}"><span>Cool-down, ${(m.ovh||8)<=4?1:(m.ovh||8)<8?2:3} min</span><span class="chev">›</span></button>
   ${ui.cool?`<ul class="foldbody">${COOL.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
   ${hasLoaded?`<button class="btn ghost" style="margin-top:6px" data-a="logWeights">Save today's weights</button>`:""}
   ${ui.shareFallback?`<a class="btn ghost" style="margin-top:10px" href="${wa}" target="_blank" rel="noopener">Open WhatsApp</a>`:""}
