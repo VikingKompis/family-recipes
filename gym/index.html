@@ -619,6 +619,7 @@ function wpick(items,weights){ let t=weights.reduce((a,b)=>a+b,0), r=Math.random
 function pickEx(cands,spec,used,goal,primary,circuit,where){
   let c=cands.filter(e=>!used.has(e.id)&&e.pattern!=="mob"&&!(circuit&&NO_CIRCUIT.has(e.id))&&matches(e,spec));
   if(!c.length) return null;
+  if(where==="gym"){ const nb=c.filter(e=>!e.equip.includes("band")); if(nb.length) c=nb; }
   if(primary){ const big=c.filter(e=>BIG.has(e.id)); if(big.length) c.splice(0,c.length,...big); }
   const w=c.map(e=>{
     let x=1;
@@ -713,12 +714,17 @@ function generate(w){
   let goal=w.goal, focus=w.focus, time=w.time;
   if(goal==="pick") goal = type==="skip"?"cond":"muscle";
   if(type==="skip"&&!["cond","endurance"].includes(goal)) goal="cond";
-  if(focus==="pick"||!focus){
+  let foci = Array.isArray(focus) ? focus.slice() : (focus&&focus!=="pick" ? [focus] : []);
+  if(!foci.length){
     const last=S.saved.find(s=>s.meta&&s.meta.type===type);
+    const lf=last&&(Array.isArray(last.meta.focus)?last.meta.focus[0]:last.meta.focus);
     const seq=type==="kb"?["full","lower","upper"]:["full","upper","lower"];
-    focus = last&&seq.includes(last.meta.focus) ? seq[(seq.indexOf(last.meta.focus)+1)%seq.length] : "full";
+    foci=[ lf&&seq.includes(lf) ? seq[(seq.indexOf(lf)+1)%seq.length] : "full" ];
   }
-  if(type==="kb"&&!KB_SLOTS[focus]) focus = ["chest","shoulders","arms","push","pull"].includes(focus)?"upper":focus==="legs"?"lower":focus==="back"?"upper":"full";
+  if(type==="kb") foci=[...new Set(foci.map(f=>KB_SLOTS[f]?f:(["chest","shoulders","arms","push","pull","back"].includes(f)?"upper":f==="legs"?"lower":"full")))];
+  focus = foci.length===1 ? foci[0] : foci;
+  const slotsFor = ()=>{ const lists=foci.map(f=>(type==="kb"?KB_SLOTS[f]:SLOTS[f])||SLOTS.full); if(lists.length===1) return lists[0];
+    const out=[], L=Math.max(...lists.map(l=>l.length)); for(let i=0;i<L;i++) lists.forEach(l=>{ if(l[i]) out.push(l[i]); }); return out; };
   if(time==="pick"||!time) time=45;
   const ovh=time<=20?4:8, budget=Math.max(5,time-ovh);
   const ml=maxLevel();
@@ -727,10 +733,10 @@ function generate(w){
   let blocks;
   if(type==="skip"){ blocks=buildCircuits(cands,["p:cond"],goal,budget,type); focus=null; }
   else if(goal==="cond"){
-    const slots = focus!=="full" ? (type==="kb"?KB_SLOTS[focus]:SLOTS[focus]) : COND_SLOTS[type];
+    const slots = !(foci.length===1&&foci[0]==="full") ? slotsFor() : COND_SLOTS[type];
     blocks=buildCircuits(cands,slots,goal,budget,type);
   } else {
-    const slots = type==="kb"?KB_SLOTS[focus]:SLOTS[focus];
+    const slots = slotsFor();
     blocks=buildStraight(cands,slots,goal,budget);
   }
   const out=finalize({meta:{where:w.where,type,goal,focus,time,mode:"auto",effort:w.effort||null,ovh},blocks}); EFFORT=null; return out;
@@ -772,7 +778,9 @@ function recalc(s){
 }
 function headOf(s){
   const m=s.meta;
-  const h = m.focus ? FOCI[m.focus] : TYPES[m.type];
+  const fl = Array.isArray(m.focus)?m.focus:(m.focus?[m.focus]:[]);
+  const names = fl.map(f=>FOCI[f]); const joined = names.length>1 ? names.slice(0,-1).join(", ")+" & "+names[names.length-1].toLowerCase() : names[0];
+  const h = fl.length ? joined.charAt(0)+joined.slice(1).replace(/, ([A-Z])/g,(x,c)=>", "+c.toLowerCase()) : TYPES[m.type];
   const kind = m.focus ? {wt:" with weights",kb:" with kettlebells",cal:", bodyweight",skip:""}[m.type] : "";
   return {h, sub: GOALS[m.goal]+kind+(m.where==="gym"?" at the gym":" at home")};
 }
@@ -1059,7 +1067,7 @@ function vWiz(){
   let goals=Object.keys(GOALS); if(w.type==="skip") goals=["cond","endurance"];
   const focusKeys = w.type==="kb"?["full","upper","lower","core"]:Object.keys(FOCI);
   const tile=(k,v,ic,label,note,dis)=>`<button class="tile ${w[k]===v?"on":""}" data-a="wiz" data-k="${k}" data-v="${v}" ${dis?"disabled":""} aria-pressed="${w[k]===v}">${svg(ic)}<b>${label}</b>${note?`<small>${note}</small>`:""}</button>`;
-  const summary = ready ? [w.where==="gym"?"Gym":"Home",TYPES[w.type],w.goal!=="pick"?GOALS[w.goal]:null,auto&&w.time!=="pick"?w.time+" min":null].filter(Boolean).join(", ") : "Choose where and what";
+  const summary = ready ? [w.where==="gym"?"Gym":"Home",TYPES[w.type],w.goal!=="pick"?GOALS[w.goal]:null,auto&&Array.isArray(w.focus)?w.focus.map(f=>FOCI[f]).join(" + "):null,auto&&w.time!=="pick"?w.time+" min":null].filter(Boolean).join(", ") : "Choose where and what";
   return hdr(back("home","Home")) + `
   <h1 class="display md">${auto?"Build today's session":"Build it myself"}</h1>
   <p class="lede">${auto?"Answer what you know. Anything left on “You pick” is on me.":"Set the basics, then choose your exercises."}</p>
@@ -1070,7 +1078,7 @@ function vWiz(){
   <h2 class="h2 h2i"><span class="gico">${svg("target")}</span>What's the goal?</h2>
   <div class="opts">${goals.map(g=>`<button class="opt ${w.goal===g?"on":""}" data-a="wiz" data-k="goal" data-v="${g}">${plate(g,34)}<span class="ob"><b>${GOALS[g]}</b><small>${GOAL_D[g]}</small></span><span class="radio"></span></button>`).join("")}
     <button class="opt ${w.goal==="pick"?"on":""}" data-a="wiz" data-k="goal" data-v="pick"><span class="qmark" style="width:34px;height:34px">?</span><span class="ob"><b>Not sure, you pick</b><small>A balanced muscle-building session</small></span><span class="radio"></span></button></div>
-  ${auto&&w.type!=="skip"?`<h2 class="h2 h2i"><span class="gico">${svg("body")}</span>What do you want to hit?</h2><div class="chips">${focusKeys.map(k=>`<button class="chip ${w.focus===k?"on":""}" data-a="wiz" data-k="focus" data-v="${k}">${FOCI[k]}</button>`).join("")}<button class="chip ${w.focus==="pick"?"on":""}" data-a="wiz" data-k="focus" data-v="pick">You pick</button></div>`:""}
+  ${auto&&w.type!=="skip"?`<h2 class="h2 h2i"><span class="gico">${svg("body")}</span>What do you want to hit?</h2><p class="small" style="margin:-4px 0 12px">Pick as many as you like.</p><div class="chips">${focusKeys.map(k=>{const on=Array.isArray(w.focus)&&w.focus.includes(k); return `<button class="chip ${on?"on":""}" data-a="focusTog" data-v="${k}" aria-pressed="${on}">${FOCI[k]}</button>`;}).join("")}<button class="chip ${w.focus==="pick"?"on":""}" data-a="focusTog" data-v="pick" aria-pressed="${w.focus==="pick"}">You pick</button></div>`:""}
   ${auto?`<h2 class="h2 h2i"><span class="gico">${svg("clock")}</span>How long have you got?</h2><div class="chips">${[20,30,45,60,75,90].map(t=>`<button class="chip ${w.time===t?"on":""}" data-a="wiz" data-k="time" data-v="${t}">${t} min</button>`).join("")}<button class="chip ${w.time==="pick"?"on":""}" data-a="wiz" data-k="time" data-v="pick">You pick</button></div>`:""}
   ${w.where==="home"?`<p class="small" style="margin-top:18px">Missing something? <button class="small" style="text-decoration:underline" data-a="editEquip">Update your kit</button></p>`:""}
   <div class="dock"><div class="in"><div class="info"><b>${ready?"Ready":"Almost"}</b>${esc(summary)}</div><button class="btn" style="flex:none;padding:16px 22px" data-a="${auto?"build":"toLib"}" ${ready?"":"disabled"}>${auto?"Build session":"Choose exercises"}</button></div></div>`;
@@ -1199,7 +1207,7 @@ const A = {
   startWiz(v){ ui.wiz={mode:v,where:S.equip.gym&&!(S.equip.home||[]).length?"gym":null,type:null,goal:"pick",focus:"pick",time:"pick"}; go("wiz"); },
   wiz(v,t){ const k=t.dataset.k, w=ui.wiz; w[k]=k==="time"&&v!=="pick"?+v:v;
     if(k==="where"&&w.type&&!typeAvailable(w.type,v)) w.type=null;
-    if(k==="type"){ if(v==="skip"&&!["cond","endurance","pick"].includes(w.goal)) w.goal="pick"; if(v==="kb"&&!["full","upper","lower","core","pick"].includes(w.focus)) w.focus="pick"; }
+    if(k==="type"){ if(v==="skip"&&!["cond","endurance","pick"].includes(w.goal)) w.goal="pick"; if(v==="kb"&&Array.isArray(w.focus)){ w.focus=w.focus.filter(f=>["full","upper","lower","core"].includes(f)); if(!w.focus.length) w.focus="pick"; } }
     render(); },
   quick(v){
     if(!quickWhere(v)) return;
@@ -1211,6 +1219,14 @@ const A = {
     const q=ui.quick, where=quickWhere(q.type);
     ui.wiz={mode:"auto",where,type:q.type,goal:effortGoal(q.type,q.effort),focus:"pick",time:q.time,effort:q.effort==="easy"?"easy":null};
     ui.quick=null; ui.session=generate(ui.wiz); go("session");
+  },
+  focusTog(v){
+    const w=ui.wiz;
+    if(v==="pick"){ w.focus="pick"; render(); return; }
+    let a=Array.isArray(w.focus)?w.focus.slice():[];
+    a=a.includes(v)?a.filter(x=>x!==v):a.concat(v);
+    if(v==="full"&&a.includes("full")) a=["full"]; else a=a.filter(x=>x!=="full"||v==="full");
+    w.focus=a.length?a:"pick"; render();
   },
   build(){ ui.session=generate(ui.wiz); go("session"); },
   rebuild(){ const m=ui.session.meta, w=ui.wiz||{};
