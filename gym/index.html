@@ -184,6 +184,36 @@ textarea.copy{width:100%;height:220px;background:var(--sheet);border:0;border-ra
 #toast{position:fixed;left:50%;bottom:calc(94px + env(safe-area-inset-bottom));transform:translate(-50%,12px);background:var(--acc);color:var(--on-acc);font-weight:700;padding:11px 18px;border-radius:999px;opacity:0;transition:.2s;pointer-events:none;z-index:20;font-size:15px;white-space:nowrap}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* timer */
+#timer{position:fixed;inset:0;z-index:30;background:var(--bg);display:none;flex-direction:column;padding:calc(14px + env(safe-area-inset-top)) 22px calc(22px + env(safe-area-inset-bottom));transition:background .3s}
+#timer.show{display:flex}
+#timer.work{background:#231F15}
+.t-top{display:flex;justify-content:space-between;align-items:center;height:48px}
+.t-meta{font-weight:700;color:var(--steel);font-size:15px}
+.t-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px}
+.t-phase{font-family:var(--disp);font-weight:800;font-size:28px;color:var(--steel)}
+#timer.work .t-phase{color:var(--acc)}
+.t-ring{position:relative;width:min(78vw,330px);aspect-ratio:1;margin:8px 0 14px}
+.t-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.t-ring circle{fill:none;stroke-width:10}
+.t-ring .trk{stroke:var(--soft)}
+.t-ring .prg{stroke:var(--steel);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+#timer.work .t-ring .prg{stroke:var(--acc)}
+.t-num{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--disp);font-weight:900;font-size:min(30vw,128px);line-height:1;font-variant-numeric:tabular-nums}
+.t-name{font-weight:700;font-size:24px;line-height:1.2;max-width:22ch}
+.t-sub{color:var(--steel);font-size:16px;min-height:24px}
+.t-ctrl{display:flex;gap:12px;justify-content:center;align-items:center}
+.t-ctrl .round{width:64px;height:64px;border-radius:50%;background:var(--sheet);display:grid;place-items:center}
+.t-ctrl .round svg{width:26px;height:26px}
+.t-ctrl .big{width:84px;height:84px;background:var(--acc);color:var(--on-acc)}
+.t-ctrl .big svg{width:34px;height:34px}
+.t-done{font-family:var(--disp);font-weight:900;font-size:64px;line-height:.95}
+.tbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 36px);margin:0 18px 14px;padding:13px;border-radius:12px;background:var(--acc);color:var(--on-acc);font-weight:700;font-size:16px}
+.tbtn svg{width:18px;height:18px}
+.setdots{display:inline-flex;gap:4px;margin-left:8px;vertical-align:middle}
+.setdots i{width:8px;height:8px;border-radius:50%;background:var(--soft)}
+.setdots i.f{background:var(--acc)}
+
 /* the one moment: plates load onto the bar */
 .bbell .pl{animation:load .55s cubic-bezier(.2,.9,.25,1) both;animation-delay:calc(var(--i) * 70ms + 80ms)}
 @keyframes load{from{transform:translateX(var(--dx));opacity:0}to{transform:none;opacity:1}}
@@ -193,6 +223,7 @@ textarea.copy{width:100%;height:220px;background:var(--sheet);border:0;border-ra
 <body>
 <div id="app"></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="timer" role="dialog" aria-modal="true" aria-label="Timer"></div>
 <script>
 "use strict";
 const IC = {
@@ -226,6 +257,10 @@ IC.play='<path d="M7 4.5v15l12-7.5z"/>';
 IC.swap='<path d="M4 8h13l-3-3M20 16H7l3 3"/>';
 IC.list='<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>';
 IC.bookmark='<path d="M6 3h12v18l-6-4-6 4z"/>';
+IC.pause='<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>';
+IC.skip='<path d="M5 5l10 7-10 7z"/><path d="M19 5v14"/>';
+IC.close='<path d="M6 6l12 12M18 6 6 18"/>';
+IC.timer='<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/>';
 IC.search='<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>';
 function svg(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(IC[k]||IC.bw)+'</svg>';}
 
@@ -794,6 +829,101 @@ function back(to,label){ return `<button class="nav" data-a="go" data-v="${to}">
 function greet(){ const h=new Date().getHours(); return h<12?"Morning":h<18?"Afternoon":"Evening"; }
 function eqName(q){ return q==="kb2"?"2 kettlebells":(EQUIP.find(x=>x[0]===q)||[0,q])[1]; }
 
+function holdSecs(it){ const m=String(it.reps).match(/(\d+)\s*(?:–\s*(\d+))?\s*s/); return m?+(m[2]||m[1]):0; }
+function setCtl(it,e,key){
+  const done=it.done||0;
+  if(done>=it.sets) return `<div class="log" style="color:var(--acc);font-weight:700">All ${it.sets} sets done <button class="mini" data-a="setReset" data-v="${key}">Reset</button></div>`;
+  const hold=e.unit==="s"?holdSecs(it):0;
+  const label = hold ? `Start set ${done+1}: ${hold} s hold` : (done+1<it.sets ? `Set ${done+1} done, rest ${fmtRest(it.rest)}` : `Last set done`);
+  return `<button class="tbtn" style="width:100%;margin:0 0 12px" data-a="${hold?"timerHold":"setDone"}" data-v="${key}">${svg(hold?"play":"timer")}${label}</button>`;
+}
+
+/* ============ TIMER ============ */
+const TM={el:document.getElementById("timer"),ph:[],i:0,left:0,endAt:0,paused:false,tick:null,ctx:null,lock:null,onDone:null,lastBeep:-1,title:""};
+function tAudio(){ try{ if(!TM.ctx) TM.ctx=new (window.AudioContext||window.webkitAudioContext)(); if(TM.ctx.state==="suspended") TM.ctx.resume(); }catch(e){} }
+function beep(f,ms,vol){
+  try{ const c=TM.ctx; if(!c) return; const o=c.createOscillator(), g=c.createGain(); o.type="square"; o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,c.currentTime); g.gain.exponentialRampToValueAtTime(vol||0.25,c.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+ms/1000); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+ms/1000+0.02);
+  }catch(e){}
+  try{ navigator.vibrate&&navigator.vibrate(ms>300?300:80); }catch(e){}
+}
+async function tWake(on){
+  try{ if(on&&"wakeLock" in navigator&&!TM.lock){ TM.lock=await navigator.wakeLock.request("screen"); TM.lock.addEventListener("release",()=>{TM.lock=null;}); }
+       if(!on&&TM.lock){ await TM.lock.release(); TM.lock=null; } }catch(e){}
+}
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&TM.el.classList.contains("show")) tWake(true); });
+function tStart(title,phases,onDone){
+  tAudio(); TM.title=title; TM.ph=phases; TM.i=0; TM.paused=false; TM.onDone=onDone||null;
+  TM.left=phases[0].dur; TM.endAt=performance.now()+TM.left*1000; TM.lastBeep=-1;
+  TM.el.classList.add("show"); document.body.style.overflow="hidden"; tWake(true);
+  clearInterval(TM.tick); TM.tick=setInterval(tLoop,100); tDraw();
+}
+function tNext(){
+  const cur=TM.ph[TM.i]; if(cur&&cur.after) cur.after();
+  TM.i++;
+  if(TM.i>=TM.ph.length){ clearInterval(TM.tick); beep(1320,180); setTimeout(()=>beep(1320,180),250); setTimeout(()=>beep(1760,500),500); tDrawDone(); return; }
+  const p=TM.ph[TM.i]; TM.left=p.dur; TM.endAt=performance.now()+p.dur*1000; TM.lastBeep=-1;
+  beep(p.kind==="work"?1320:660,p.kind==="work"?450:300);
+  tDraw();
+}
+function tLoop(){
+  if(TM.paused) return;
+  const rem=Math.max(0,(TM.endAt-performance.now())/1000), whole=Math.ceil(rem);
+  if(whole<=3&&whole>=1&&whole!==TM.lastBeep){ TM.lastBeep=whole; beep(880,120); }
+  TM.left=rem;
+  if(rem<=0){ tNext(); return; }
+  tUpdate();
+}
+function tUpdate(){
+  const p=TM.ph[TM.i]; if(!p) return;
+  const n=TM.el.querySelector(".t-num"), pr=TM.el.querySelector(".prg"); if(!n) return;
+  const sec=Math.ceil(TM.left); n.textContent = sec>=60 ? Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0") : sec;
+  const C=2*Math.PI*45; pr.style.strokeDashoffset = C*(1-Math.max(0,TM.left)/p.dur);
+}
+function tDraw(){
+  const p=TM.ph[TM.i]; const C=2*Math.PI*45;
+  TM.el.className="show "+(p.kind==="work"?"work":"");
+  TM.el.innerHTML=`<div class="t-top"><span class="t-meta">${esc(p.meta||TM.title)}</span><button class="iconbtn" data-t="close" aria-label="Stop timer">${svg("close")}</button></div>
+  <div class="t-main"><div class="t-phase">${esc(p.phase)}</div>
+    <div class="t-ring"><svg viewBox="0 0 100 100"><circle class="trk" cx="50" cy="50" r="45"/><circle class="prg" cx="50" cy="50" r="45" stroke-dasharray="${C}" stroke-dashoffset="0"/></svg><div class="t-num"></div></div>
+    <div class="t-name">${esc(p.name||"")}</div><div class="t-sub">${esc(p.sub||"")}</div></div>
+  <div class="t-ctrl"><button class="round" data-t="close" aria-label="Stop">${svg("close")}</button><button class="round big" data-t="pause" aria-label="${TM.paused?"Resume":"Pause"}">${svg(TM.paused?"play":"pause")}</button><button class="round" data-t="skip" aria-label="Skip">${svg("skip")}</button></div>`;
+  tUpdate();
+}
+function tDrawDone(){
+  TM.el.className="show";
+  TM.el.innerHTML=`<div class="t-top"><span class="t-meta">${esc(TM.title)}</span><button class="iconbtn" data-t="close" aria-label="Close">${svg("close")}</button></div>
+  <div class="t-main"><div class="t-done">Done.</div><div class="t-sub" style="margin-top:8px">${esc(TM.ph.doneMsg||"Nice work.")}</div></div>
+  <div class="t-ctrl"><button class="btn" style="max-width:320px" data-t="close">Back to the session</button></div>`;
+  if(TM.onDone) TM.onDone();
+}
+function tClose(){ clearInterval(TM.tick); TM.el.classList.remove("show"); TM.el.innerHTML=""; document.body.style.overflow=""; tWake(false); render(); }
+TM.el.addEventListener("click",ev=>{
+  const b=ev.target.closest("[data-t]"); if(!b) return; const a=b.dataset.t;
+  if(a==="close") tClose();
+  if(a==="skip"){ TM.lastBeep=-1; tNext(); }
+  if(a==="pause"){
+    if(TM.paused){ TM.paused=false; TM.endAt=performance.now()+TM.left*1000; } else { TM.paused=true; }
+    tDraw();
+  }
+});
+function circuitPhases(s,bi){
+  const b=s.blocks[bi], ph=[], n=b.items.length;
+  const nm=i=>EXM[b.items[i].id].name;
+  ph.push({kind:"prep",phase:"Get ready",dur:10,name:nm(0),sub:`${b.rounds} rounds, ${fmtW(b.work)} on, ${fmtW(b.rest)} off`,meta:b.title});
+  for(let r=1;r<=b.rounds;r++){
+    for(let j=0;j<n;j++){
+      const e=EXM[b.items[j].id];
+      ph.push({kind:"work",phase:"Go",dur:b.work,name:e.name,sub:isUni(e)?"Switch sides halfway":(j+1<n?"Next: "+nm(j+1):(r<b.rounds?"Last one this round":"Last one. Empty the tank")),meta:`${b.title}, round ${r} of ${b.rounds}`});
+      if(j+1<n&&b.rest>0) ph.push({kind:"rest",phase:"Rest",dur:b.rest,name:"Next: "+nm(j+1),sub:"",meta:`${b.title}, round ${r} of ${b.rounds}`});
+    }
+    if(r<b.rounds) ph.push({kind:"rest",phase:"Round rest",dur:60,name:"Next: "+nm(0),sub:`Round ${r+1} of ${b.rounds} coming up`,meta:b.title});
+  }
+  ph.doneMsg=`${b.rounds} rounds of ${n} exercises finished.`;
+  return ph;
+}
+
 /* ============ VIEWS ============ */
 function fitWord(f){ return f<=3?"Just getting started":f<=7?"Train regularly":"Experienced, knows the lifts"; }
 function vWelcome(){
@@ -904,7 +1034,8 @@ function vLib(){
 function vItem(s,b,bi,it,ii){
   const e=EXM[it.id], circuit=b.kind==="circuit", key=bi+":"+ii, open=ui.open===key;
   const sug0=suggestion(e,s), sug=/<b>/.test(sug0)?sug0:"", log=isLoaded(e)&&!circuit;
-  const rx = circuit ? `<b>${esc(it.reps)}</b>${isUni(e)?"switch sides halfway":""}` : `<b>${it.sets} × ${esc(it.reps)}</b>rest ${fmtRest(it.rest)}`;
+  const dots = !circuit&&it.done ? `<span class="setdots" aria-label="${it.done} of ${it.sets} sets done">${Array.from({length:it.sets},(_,k)=>`<i class="${k<it.done?"f":""}"></i>`).join("")}</span>` : "";
+  const rx = circuit ? `<b>${esc(it.reps)}</b>${isUni(e)?"switch sides halfway":""}` : `<b>${it.sets} × ${esc(it.reps)}</b>rest ${fmtRest(it.rest)}${dots}`;
   return `<div class="exr">
     <button class="exr-h" data-a="openEx" data-v="${key}" aria-expanded="${open}">
       <span class="n">${ii+1}</span>
@@ -916,6 +1047,7 @@ function vItem(s,b,bi,it,ii){
     ${open&&!ui.edit?`<div class="exr-d">
       <p class="cue">${esc(e.cue)}</p>
       ${log?`<div class="log"><span>Today</span><input type="number" class="soft-in" inputmode="decimal" placeholder="kg" value="${esc(it.kg!=null?it.kg:defaultKg(e,s))}" data-i="kg" data-v="${key}" aria-label="Kilograms used"><span>kg</span><label><input type="checkbox" data-i="ok" data-v="${key}" ${it.ok?"checked":""}>Hit all reps</label></div>`:""}
+      ${!circuit?setCtl(it,e,key):""}
       <div class="acts"><a class="mini" href="${ytUrl(e)}" target="_blank" rel="noopener">${svg("play")}Watch how</a><button class="mini" data-a="swap" data-v="${key}">${svg("swap")}Swap</button></div>
     </div>`:""}
   </div>`;
@@ -926,7 +1058,7 @@ function vSession(){
   const items=s.blocks.flatMap(b=>b.items), nEx=items.length;
   const hasLoaded=s.blocks.some(b=>b.kind!=="circuit"&&b.items.some(it=>isLoaded(EXM[it.id])));
   const wa="https://wa.me/?text="+encodeURIComponent(shareText(s));
-  const note = g => g==="strength"?"Big lift first. Pick weights you could lift for 2 more reps.":g==="endurance"?"Light weights, short rest.":"Pick weights where the last 2 reps are hard.";
+  const note0 = g => g==="strength"?"Big lift first. Pick weights you could lift for 2 more reps.":g==="endurance"?"Light weights, short rest.":"Pick weights where the last 2 reps are hard.";
   return hdr(back("home","Home"), m.mode==="auto"?`<button class="nav" data-a="rebuild">${svg("refresh")}New version</button>`:"") + `
   ${barbell(items.map(()=>"#3C4754"),false,"s-bar")}
   <h1 class="display">${esc(hd.h)}</h1>
@@ -936,7 +1068,8 @@ function vSession(){
   <button class="fold ${ui.warm?"open":""}" data-a="fold" data-v="warm" aria-expanded="${!!ui.warm}"><span>Warm-up, 5 min</span><span class="chev">›</span></button>
   ${ui.warm?`<ul class="foldbody">${WARMUP[m.type].map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
   ${s.blocks.map((b,bi)=>`<section class="sheet">
-    <div class="sheet-h"><h2>${esc(b.title)}</h2>${b.kind==="circuit"?`<p><span class="rounds">${b.rounds} rounds</span><br>${fmtW(b.work)} on, ${fmtW(b.rest)} off</p>`:`<p>${note(m.goal)}</p>`}</div>
+    <div class="sheet-h"><h2>${esc(b.title)}</h2>${b.kind==="circuit"?`<p><span class="rounds">${b.rounds} rounds</span><br>${fmtW(b.work)} on, ${fmtW(b.rest)} off</p>`:`<p>${note0(m.goal)}</p>`}</div>
+    ${b.kind==="circuit"&&!ui.edit&&b.items.length?`<div style="padding-top:14px"><button class="tbtn" data-a="timerCircuit" data-v="${bi}">${svg("play")}Start circuit timer</button></div>`:""}
     ${b.kind==="circuit"&&ui.edit?`<div class="edit" style="padding-top:12px"><div class="step"><button data-a="rounds" data-v="${bi}:-1" aria-label="Fewer rounds">−</button><span>${b.rounds} rounds</span><button data-a="rounds" data-v="${bi}:1" aria-label="More rounds">+</button></div></div>`:""}
     ${b.items.map((it,ii)=>vItem(s,b,bi,it,ii)).join("")}
     ${b.kind==="circuit"?`<p class="small" style="padding:0 18px 14px">Rest 1 min between rounds.</p>`:""}
@@ -947,7 +1080,7 @@ function vSession(){
   ${ui.shareFallback?`<a class="btn ghost" style="margin-top:10px" href="${wa}" target="_blank" rel="noopener">Open WhatsApp</a>`:""}
   ${ui.copyBox?`<textarea class="copy" readonly aria-label="Session as text">${esc(shareText(s))}</textarea>`:""}
   ${ui.saveFull?`<div class="warn">You've got 10 saved sessions. Delete one in Saved sessions first.</div>`:""}
-  <p class="note">Tap an exercise for how to do it, a swap, and to log today's weight. Logged weights are used to suggest your next step up.</p>
+  <p class="note">Tap an exercise for how to do it, a rest timer, a swap, and to log today's weight. Logged weights are used to suggest your next step up.</p>
   <div class="dock"><div class="in">
     <button class="sq ${saved?"on":""}" data-a="save" aria-label="${saved?"Saved":"Save session"}" aria-pressed="${saved}">${svg("star")}</button>
     <button class="sq ${ui.edit?"on":""}" data-a="toggleEdit" aria-label="Edit session" aria-pressed="${ui.edit}">${svg("pen")}</button>
@@ -1014,6 +1147,25 @@ const A = {
     render(); toast(n?`Added ${n}`:"Nothing left to add here");
   },
   finishLib(){ ui.session=buildManual(ui.lib.draft,ui.lib.sel); go("session"); },
+  timerCircuit(v){ const s=ui.session; tStart(s.blocks[+v].title,circuitPhases(s,+v)); },
+  setDone(v){
+    const [bi,ii]=parseIdx(v), it=ui.session.blocks[bi].items[ii], e=EXM[it.id];
+    it.done=Math.min(it.sets,(it.done||0)+1); syncSaved();
+    if(it.done>=it.sets){ render(); toast(e.name+" done"); return; }
+    tAudio();
+    const ph=[{kind:"rest",phase:"Rest",dur:it.rest,name:e.name,sub:`Next: set ${it.done+1} of ${it.sets}`,meta:`Set ${it.done} of ${it.sets} done`}];
+    ph.doneMsg=`Time for set ${it.done+1} of ${it.sets}.`;
+    tStart(e.name,ph);
+  },
+  timerHold(v){
+    const [bi,ii]=parseIdx(v), it=ui.session.blocks[bi].items[ii], e=EXM[it.id], hold=holdSecs(it), n=(it.done||0)+1;
+    const ph=[{kind:"prep",phase:"Get ready",dur:5,name:e.name,sub:`Set ${n} of ${it.sets}`},
+      {kind:"work",phase:"Hold",dur:hold,name:e.name,sub:isUni(e)?"Switch sides halfway":`Set ${n} of ${it.sets}`,after:()=>{ it.done=Math.min(it.sets,n); syncSaved(); }}];
+    if(n<it.sets) ph.push({kind:"rest",phase:"Rest",dur:it.rest,name:e.name,sub:`Next: set ${n+1} of ${it.sets}`});
+    ph.doneMsg = n<it.sets?`Time for set ${n+1} of ${it.sets}.`:`All ${it.sets} sets done.`;
+    tStart(e.name,ph);
+  },
+  setReset(v){ const [bi,ii]=parseIdx(v); ui.session.blocks[bi].items[ii].done=0; syncSaved(); render(); },
   openEx(v){ ui.open=ui.open===v?null:v; render(); },
   fold(v){ ui[v]=!ui[v]; render(); },
   swap(v){ const [bi,ii]=parseIdx(v); swapItem(ui.session,bi,ii); recalc(ui.session); syncSaved(); render(); toast("Swapped"); },
